@@ -59,29 +59,47 @@ onMounted(() => {
   console.log('Allocations in Admin-dashboard:', allocations.value);
   console.log('Utilizations in Admin-dashboard:', utilizations.value);
 });
+
+const isSidebarExpanded = ref(false);
+
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
 </script>
 
 <template>
-    <Layout/>
-    <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-      <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-        <div class="py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 class="text-2xl font-semibold text-gray-900">REGION XI ACCOMPLISHMENT REPORT ANALYSIS DASHBOARD</h1>
+  <div class="flex">
+    <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
+      <!-- Header and Filter Section inside a single flex container -->
+      <header class="bg-white shadow-sm w-full max-w-6xl mx-auto mb-6">
+        <div class="py-4 px-4 sm:px-6 lg:px-4">
+          <div class="flex justify-between items-center">
+            <!-- Title -->
+            <h1 class="text-2xl font-semibold text-gray-900">REGION XI ACCOMPLISHMENT REPORT ANALYSIS DASHBOARD</h1>
+            
+            <!-- Filter Section (Inline with Title) -->
+            <div class="flex items-center space-x-4">
+              <select v-model="selectedYear" class="p-2 border rounded">
+                <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
+              </select>
+              <select v-model="selectedQuarter" class="p-2 border rounded">
+                <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
+              </select>
+              <button @click="applyFilter" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Apply Filter
+              </button>
+            </div>
+          </div>
         </div>
       </header>
-
-      <!-- Filter Section -->
-      <div class="flex flex-wrap mb-4 mt-4 items-center space-y-2 md:space-y-0 md:space-x-4">
-        <select v-model="selectedYear" class="p-2 border rounded">
-          <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
-        </select>
-        <select v-model="selectedQuarter" class="p-2 border rounded">
-          <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
-        </select>
-        <button @click="applyFilter" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-          Apply Filter
-        </button>
-      </div>
 
       <!-- Summary cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 w-full max-w-6xl mx-auto">
@@ -107,7 +125,12 @@ onMounted(() => {
       <div class="bg-white p-4 rounded shadow mb-4 w-full max-w-6xl mx-auto">
         <h3 class="text-center text-xl font-bold mb-4">Fund Distribution Over Time</h3>
         <div class="h-auto w-full">
-          <ReportsChart :allocations="allocations" :utilizations="utilizations" />
+          <ReportsChart 
+          :allocations="allocations" 
+          :utilizations="utilizations"
+          :selectedYear="selectedYear"
+          :selectedQuarter="selectedQuarter"
+        />
         </div>
       </div>
 
@@ -153,4 +176,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
+  </div>
 </template>
