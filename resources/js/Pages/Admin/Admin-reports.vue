@@ -3,9 +3,11 @@ import { ref, computed } from 'vue';
 import { defineProps } from 'vue';
 import Layout from '../../Layouts/admin-layout.vue';
 import { generatePptReport } from './pptformat';
+import { generateProgramPpt } from './pptprogram';
 
 // State for the selected province
 const selectedProvince = ref(null); // Initially no province is selected
+const selectedProgram = ref(null); // Initially no program is selected
 
 const generatePpt = () => {
   // Check if "All Provinces" is selected
@@ -79,6 +81,81 @@ const generatePpt = () => {
 
     // Passing province, programs, and cities to the generatePptReport function
     generatePptReport([selectedProvince.value], props.programs, allCityMunicipalities, provinceName);
+  }
+};
+
+// New function for downloading program reports
+const handleGeneratePpt = () => {
+  // Check if "All Provinces" is selected
+  if (selectedProvince.value === 'all') {
+    if (!props.provinces.length) {
+      console.error('No provinces available to generate the report');
+      return;
+    }
+
+    if (!props.programs.length) {
+      console.error('No programs available to generate the report');
+      return;
+    }
+
+    // Move Davao City to the top of the provinces list
+    const sortedProvinces = [...props.provinces];
+    const davaoCityIndex = sortedProvinces.findIndex(province => province.col_province.toLowerCase() === 'davao city');
+
+    if (davaoCityIndex !== -1) {
+      const davaoCity = sortedProvinces.splice(davaoCityIndex, 1)[0]; // Remove Davao City from the array
+      sortedProvinces.unshift(davaoCity); // Add Davao City at the start
+    }
+
+    // Prepare the data for generating the report
+    const allProvinces = sortedProvinces.map(province => {
+      const groupedCityMunicipalities = province.districts || {};
+      const allCityMunicipalities = Object.values(groupedCityMunicipalities).flatMap(districtGroup => {
+        if (districtGroup.cities && Array.isArray(districtGroup.cities)) {
+          return districtGroup.cities.map(city => city);
+        }
+        return [];
+      });
+
+      return {
+        ...province,
+        cities: allCityMunicipalities
+      };
+    });
+
+    // Pass the structured data along with programs to the generateProgramPpt function
+    generateProgramPpt(allProvinces, props.programs, [], 'All Provinces');
+  } else {
+    // Handle single province selection
+    if (!selectedProvince.value) {
+      console.error('Please select a province to generate the report');
+      return;
+    }
+
+    if (!props.programs.length) {
+      console.error('No programs available to generate the report');
+      return;
+    }
+
+    // Extract city/municipality data from the selected province
+    const groupedCityMunicipalities = selectedProvince.value.districts || {};
+
+    const allCityMunicipalities = Object.values(groupedCityMunicipalities).flatMap(districtGroup => {
+      if (districtGroup.cities && Array.isArray(districtGroup.cities)) {
+        return districtGroup.cities.map(city => city);
+      }
+      return [];
+    });
+
+    if (!allCityMunicipalities.length) {
+      console.error('No city/municipality data available for the selected province');
+      return;
+    }
+ // Generate the PowerPoint report with the extracted city/municipality data
+ const provinceName = selectedProvince.value.col_province;
+
+    // Pass the structured province data along with programs to the generateProgramPpt function
+    generateProgramPpt([selectedProvince.value], props.programs, allCityMunicipalities, provinceName);
   }
 };
 
@@ -160,40 +237,35 @@ const filteredProvinces = computed(() => {
   return filtered;
 });
 
-// Filtered Programs based on Search Query
+// Filtered Programs based on selected program
 const filteredPrograms = computed(() => {
-  if (!searchQuery.value) {
-    return props.programs;
+  if (!selectedProgram.value) {
+    return props.programs; // Show all programs if none is selected
   }
-  return props.programs.filter(program =>
-    program.program_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  return props.programs.filter(program => program.id === selectedProgram.value.id); // Filter based on selected program's ID
 });
 </script>
 
 <template>
   <Layout />
   <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-    <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-      <div class="py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-900">Reports</h1>
-      </div>
-    </header>
-    <div><p><br></p></div>
-    <main class="flex-1 w-full max-w-7xl mx-auto py-4 px-2 bg-white ">
+  
+    <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
       <!-- Search bar and download button -->
       <h2 class="text-xl font-semibold mb-4 text-center"><strong>ALL PROGRAMS</strong></h2>
-      <div class="flex justify-between mb-4 space-x-4">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Select Program"
-          class="px-4  border border-gray-300 rounded-md"
-        />
+      <div class="flex justify-between mb-2 space-x-4">
+          
+        <!-- Program Selection Dropdown -->
+        <select v-model="selectedProgram" class="px-4 py-2 border border-gray-300 rounded-md">
+          
+          <option value="all">All Programs</option>
+          <option v-for="program in props.programs" :key="program.id" :value="program">
+            {{ program.program_name }}
+          </option>
+        </select>
 
         <!-- Province Selection Dropdown -->
-      <div class="flex justify-between mb-4 space-x-4">
-        
+      <div class="flex justify-between mb-4 space-x-4">     
         <select v-model="selectedProvince" class="px-4 py-2 border border-gray-300 rounded-md">
           <option value="" disabled>Select Province</option>
           <option value="all">All Provinces</option> <!-- Add option for all provinces -->
@@ -206,8 +278,15 @@ const filteredPrograms = computed(() => {
           @click="generatePpt"
           class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          Download Report
+          Province
         </button>
+        <!-- New button for downloading program reports -->
+        <button
+            @click="handleGeneratePpt"
+             class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Program
+          </button>
 
       </div>
     </div>

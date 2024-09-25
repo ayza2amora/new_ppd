@@ -151,3 +151,8 @@ Route::get('/utilizations', [ReportsController::class, 'getUtilizations']);
 
 Route::get('/programs/{id}', [ProgramController::class, 'show']);
 
+use App\Http\Controllers\ProgramReportController;
+
+Route::get('/admin/program-reports', [ProgramReportController::class, 'index'])->name('program.reports');
+
+
