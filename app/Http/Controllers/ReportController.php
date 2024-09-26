@@ -156,5 +156,27 @@ class ReportController extends Controller
             'availableQuarters' => $availableQuarters, // Available quarters for the dropdown
         ]);
     }
-    
+    public function getUtilizationSummary($programId, $provinceCode)
+{
+    // Retrieve the program
+    $program = Program::find($programId);
+
+    // Retrieve the province
+    $province = Province::where('psgc', $provinceCode)->with(['districts.cities'])->first();
+
+    // Prepare the response data
+    $response = [
+        'program' => [
+            'program_name' => $program->name,
+            'program_logo' => $program->logo_path // Ensure the logo path is accessible
+        ],
+        'province' => [
+            'col_province' => $province->name,
+            'districts' => $province->districts // Eager load districts and their cities
+        ]
+    ];
+
+    return response()->json($response);
+}
+
 }

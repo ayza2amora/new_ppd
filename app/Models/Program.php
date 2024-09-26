@@ -13,12 +13,13 @@ class Program extends Model
     
     public function allocations()
 {
-    return $this->hasMany(Allocation::class);
+    return $this->hasMany(Allocation::class, 'program', 'id');
+
 }
 
 public function utilizations()
 {
-    return $this->hasMany(Utilization::class);
+    return $this->hasMany(Utilization::class, 'program', 'id');
 }
 
 }

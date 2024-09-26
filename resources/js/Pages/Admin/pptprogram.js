@@ -72,28 +72,24 @@ export const generateProgramPpt = (provinces, programs) => {
  
        // Add Program Name Header
        allocationSlide.addText(` ${program.program_name}`, {
-         x: 0.9,
-         y: 0.5, w: '60%', fontSize: 20, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+         x: 0.5,
+         y: 0.5, w: '70%', fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
        });
  // Add the program logo
  allocationSlide.addImage({
     path: `${window.location.origin}/${program.program_logo}`, // Assuming program_logo holds the image file name
-    x: 0.5, y: 0.5, w: 1.0, h: 1.0 // Adjust x, y, width, and height as necessary
+    x: 0, y: 0, w: 1.0, h: 1.0 // Adjust x, y, width, and height as necessary
   });
-       allocationSlide.addText(`${province.col_province.toUpperCase()}`, {
-         x: 0.9,
-         y: 1.0, w: '60%', fontSize: 16, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
-       });
  
        const allocationTableHeader = [
          [
-           { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-           { text: 'TARGET', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
+           { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
+           { text: 'TARGET', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
          ],
          [
-           { text: 'Municipality', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-           { text: 'Physical', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-           { text: 'Fund Allocated (Php)', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+           { text: 'Municipality', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+           { text: 'Physical', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+           { text: 'Fund Allocated (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
          ]
        ];
  
@@ -104,12 +100,12 @@ export const generateProgramPpt = (provinces, programs) => {
        Object.values(province.districts || {}).forEach(district => {
          if (district.district) {
            allocationRows.push([
-             { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 8, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
+             { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 10, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
            ]);
          }
  
          district.cities.forEach((city, index) => {
-           const fillColor = index % 2 === 0 ? 'F0F8FF' : 'E6E6FA';
+           const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
            const target = city.total_target || 0;
            const allocated = city.total_allocation || 0;
  
@@ -121,22 +117,30 @@ export const generateProgramPpt = (provinces, programs) => {
            programTargets[program.program_name] = (programTargets[program.program_name] || 0) + target;
  
            allocationRows.push([
-             { text: city.col_citymuni, options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: fillColor } },
-             { text: target.toString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } },
-             { text: allocated.toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } }
+             { text: city.col_citymuni, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+             { text: target.toString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } },
+             { text: allocated.toLocaleString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } }
            ]);
          });
        });
  
        allocationRows.push([
-         { text: 'TOTAL', options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-         { text: totalPhysicalTarget.toString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-         { text: totalFundAllocated.toLocaleString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } }
+         { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+         { text: totalPhysicalTarget.toString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+         { text: totalFundAllocated.toLocaleString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } }
        ]);
  
        allocationSlide.addTable([...allocationTableHeader, ...allocationRows], {
-         x: 0.5, y: 1.5, w: 8, fontSize: 10, border: { pt: 1, color: '000000' }
-       });
+        x: 1.0, // Adjust x-position as needed
+        y: 1.0, // Adjust y-position as needed
+        w: 7,   // Reduced width of the entire table
+        h: 3.5, // Height of the table
+        colW: [2.5, 2, 2], // Adjust column widths: [Municipality, Physical Target, Fund Allocated]
+        rowH: 0.2, // Adjust row height
+        fontSize: 14, 
+        border: { pt: 1, color: 'FFFFFF' }, 
+        fill: { color: 'FFFFFF' } // Optional: adjust fill for table background
+      });
  
        // Slide 3: Utilization Summary for the Program
        const utilizationSlide = pptx.addSlide();
@@ -144,31 +148,25 @@ export const generateProgramPpt = (provinces, programs) => {
  
        // Add Program Name Header
        utilizationSlide.addText(` ${program.program_name}`, {
-         x: 0.9,
-         y: 0.5, w: '60%', fontSize: 20, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+         x: 0.5,
+         y: 0.5, w: '70%', fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
        });
        utilizationSlide.addImage({
         path: `${window.location.origin}/${program.program_logo}`, // Assuming program_logo holds the image file name
-        x: 0.5, y: 0.5, w: 1.0, h: 1.0 // Adjust x, y, width, and height as necessary
+        x: 0, y: 0, w: 1.0, h: 1.0 // Adjust x, y, width, and height as necessary
       });
  
-       utilizationSlide.addText(`${province.col_province.toUpperCase()}`, {
-         x: 0.9,
-         y: 1.0, w: '60%', fontSize: 16, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
-       });
- 
        const utilizationTableHeader = [
-         [
-           { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-           { text: 'UTILIZED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-           { text: 'SERVED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } }
-         ],
-         [
-           { text: 'Municipality', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-           { text: 'Fund Utilized (Php)', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-           { text: 'Total Served', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
-         ]
-       ];
+        [
+          { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
+          { text: 'ACCOMPLISHMENT', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
+        ],
+        [
+          { text: 'Municipality', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+          { text: 'Physical', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+          { text: 'Fund Utilized (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+        ]
+      ];
  
        const utilizationRows = [];
        let totalFundUtilized = 0;
@@ -177,12 +175,12 @@ export const generateProgramPpt = (provinces, programs) => {
        Object.values(province.districts || {}).forEach(district => {
          if (district.district) {
            utilizationRows.push([
-             { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 8, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
+             { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 10, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
            ]);
          }
  
          district.cities.forEach((city, index) => {
-           const fillColor = index % 2 === 0 ? 'F0F8FF' : 'E6E6FA';
+           const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
            const utilized = city.total_utilized || 0;
            const served = city.total_served || 0;
  
@@ -194,50 +192,53 @@ export const generateProgramPpt = (provinces, programs) => {
            programServed[program.program_name] = (programServed[program.program_name] || 0) + served;
  
            utilizationRows.push([
-             { text: city.col_citymuni, options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: fillColor } },
-             { text: utilized.toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } },
-             { text: served.toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } }
+             { text: city.col_citymuni, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+             { text: utilized.toLocaleString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } },
+             { text: served.toLocaleString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } }
            ]);
          });
        });
  
        utilizationRows.push([
-         { text: 'TOTAL', options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-         { text: totalFundUtilized.toLocaleString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-         { text: totalServed.toLocaleString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } }
+         { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+         { text: totalFundUtilized.toLocaleString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+         { text: totalServed.toLocaleString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } }
        ]);
  
        utilizationSlide.addTable([...utilizationTableHeader, ...utilizationRows], {
-         x: 0.5, y: 1.5, w: 8, fontSize: 10, border: { pt: 1, color: '000000' }
-       });
+        x: 1.0, // Adjust x-position as needed
+        y: 1.0, // Adjust y-position as needed
+        w: 7,   // Reduced width of the entire table
+        h: 3.5, // Height of the table
+        colW: [2.5, 2, 2], // Adjust column widths: [Municipality, Physical Target, Fund Allocated]
+        rowH: 0.1, // Adjust row height
+        fontSize: 14, 
+        border: { pt: 1, color: 'FFFFFF' }, 
+        fill: { color: 'FFFFFF' } // Optional: adjust fill for table background
+      });
      });
- 
-// Overview Slide for Allocations
+
+ // Overview Slide for Allocations
 const allocationOverviewSlide = pptx.addSlide();
 allocationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
 
 // Overview Title
 allocationOverviewSlide.addText('ALLOCATIONS OVERVIEW', { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '00072D', fontFace: 'Arial', align: 'center' });
 
-// Allocations Table Header
+// Allocations Table Header (Removed LOGO column)
 const allocationOverviewHeader = [
   [
-    { text: 'LOGO', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'PROGRAM', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'TARGET', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'ALLOCATED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } }
   ]
 ];
 
-// Allocations Overview Rows with Program Logo
+// Allocations Overview Rows (Removed logo placeholder)
 const allocationOverviewRows = Object.keys(programAllocations).map(programName => {
   const program = programs.find(p => p.program_name === programName);
   
   return [
-    {
-      text: '', // Placeholder for logo image (will be filled separately)
-      options: { fontSize: 8, align: 'center', fontFace: 'Arial', fill: 'FFFFFF' }
-    },
     {
       text: programName, // Program name text
       options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: 'FFFFFF' }
@@ -252,26 +253,6 @@ const allocationTable = allocationOverviewSlide.addTable([...allocationOverviewH
   x: 0.5, y: 1.5, w: 9, fontSize: 10, border: { pt: 1, color: '000000' }
 });
 
-// Set up images in the logo column
-allocationOverviewRows.forEach((row, index) => {
-  const program = programs.find(p => p.program_name === row[1].text); // Get the correct program
-  if (program && program.program_logo) {
-    const logoPath = `${window.location.origin}/${program.program_logo}`;
-    console.log(`Loading image from: ${logoPath}`); // Debugging output
-
-    // Place the image in the logo column
-    allocationOverviewSlide.addImage({
-      path: logoPath,
-      x: 0.5, // Adjust x position to the left of the table
-      y: 1.5 + index * 0.4, // Ensure enough spacing for each row
-      w: 0.5, // Width of the logo
-      h: 0.5  // Height of the logo
-    });
-  } else {
-    console.warn(`Logo not found for program: ${program ? program.program_name : 'unknown'}`); // Fallback logging
-  }
-});
-
 // Similar adjustments for Utilization Overview
 const utilizationOverviewSlide = pptx.addSlide();
 utilizationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
@@ -279,25 +260,18 @@ utilizationOverviewSlide.background = { path: `${window.location.origin}/ppd-ima
 // Overview Title
 utilizationOverviewSlide.addText('UTILIZATIONS OVERVIEW', { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '00072D', fontFace: 'Arial', align: 'center' });
 
-// Utilization Table Header
+// Utilization Table Header (Removed LOGO column)
 const utilizationOverviewHeader = [
   [
-    { text: 'LOGO', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'PROGRAM', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'UTILIZED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
     { text: 'SERVED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } }
   ]
 ];
 
-// Utilization Overview Rows with Program Logo
+// Utilization Overview Rows (Removed logo placeholder)
 const utilizationOverviewRows = Object.keys(programUtilizations).map(programName => {
-  const program = programs.find(p => p.program_name === programName);
-  
   return [
-    {
-      text: '', // Placeholder for logo image (will be filled separately)
-      options: { fontSize: 8, align: 'center', fontFace: 'Arial', fill: 'FFFFFF' }
-    },
     {
       text: programName, // Program name text
       options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: 'FFFFFF' }
@@ -311,27 +285,6 @@ const utilizationOverviewRows = Object.keys(programUtilizations).map(programName
 const utilizationTable = utilizationOverviewSlide.addTable([...utilizationOverviewHeader, ...utilizationOverviewRows], {
   x: 0.5, y: 1.5, w: 9, fontSize: 10, border: { pt: 1, color: '000000' }
 });
-
-// Set up images in the logo column
-utilizationOverviewRows.forEach((row, index) => {
-  const program = programs.find(p => p.program_name === row[1].text); // Get the correct program
-  if (program && program.program_logo) {
-    const logoPath = `${window.location.origin}/${program.program_logo}`;
-    console.log(`Loading image from: ${logoPath}`); // Debugging output
-
-    // Place the image in the logo column
-    utilizationOverviewSlide.addImage({
-      path: logoPath,
-      x: 0.5, // Adjust x position to the left of the table
-      y: 1.5 + index * 0.4, // Ensure enough spacing for each row
-      w: 0.5, // Width of the logo
-      h: 0.5  // Height of the logo
-    });
-  } else {
-    console.warn(`Logo not found for program: ${program ? program.program_name : 'unknown'}`); // Fallback logging
-  }
-});
-
 
 });
  

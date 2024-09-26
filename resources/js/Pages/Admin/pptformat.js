@@ -177,24 +177,20 @@ export const generatePptReport = (provinces, programs) => {
     summarySlide1.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
 
     summarySlide1.addText('SUMMARY PER MUNICIPALITY', {
-      x: 0.9,
-      y: 0.5, w: '60%', fontSize: 20, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+      x: 0.5,
+      y: 0.5, w: '70%', fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
     });
 
-    summarySlide1.addText(`${province.col_province.toUpperCase()}`, {
-      x: 0.9,
-      y: 1.0, w: '60%', fontSize: 16, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
-    });
 
     const summaryTableHeader1 = [
       [
-        { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-        { text: 'TARGET', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
+        { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
+        { text: 'TARGET', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
       ],
       [
-        { text: 'Municipality', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-        { text: 'Physical', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-        { text: 'Fund Allocated (Php)', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+        { text: 'Municipality', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+        { text: 'Physical', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+        { text: 'Fund Allocated (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
       ]
     ];
 
@@ -205,12 +201,12 @@ export const generatePptReport = (provinces, programs) => {
     Object.values(province.districts || {}).forEach(district => {
       if (district.district) {
         rows1.push([
-          { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 8, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
+          { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 10, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
         ]);
       }
 
       district.cities.forEach((city, index) => {
-        const fillColor = index % 2 === 0 ? 'F0F8FF' : 'E6E6FA';
+        const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
         const target = city.total_target || 0;
         const allocated = city.total_allocation || 0;
 
@@ -218,21 +214,29 @@ export const generatePptReport = (provinces, programs) => {
         totalFundAllocated += allocated;
 
         rows1.push([
-          { text: city.col_citymuni, options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: fillColor } },
-          { text: target.toString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } },
-          { text: allocated.toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } }
+          { text: city.col_citymuni, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+          { text: target.toString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } },
+          { text: allocated.toLocaleString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } }
         ]);
       });
     });
 
     rows1.push([
-      { text: 'TOTAL', options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-      { text: totalPhysicalTarget.toString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-      { text: totalFundAllocated.toLocaleString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } }
+      { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+      { text: totalPhysicalTarget.toString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+      { text: totalFundAllocated.toLocaleString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } }
     ]);
 
     summarySlide1.addTable([...summaryTableHeader1, ...rows1], {
-      x: 0.5, y: 1.5, w: 7.5, colW: [3.5, 1.5, 2.5], h: 3.5, border: { pt: 1, color: 'FFFFFF' }
+      x: 1.0, // Adjust x-position as needed
+      y: 1.0, // Adjust y-position as needed
+      w: 7,   // Reduced width of the entire table
+      h: 3.5, // Height of the table
+      colW: [2.5, 2, 2], // Adjust column widths: [Municipality, Physical Target, Fund Allocated]
+      rowH: 0.1, // Adjust row height
+      fontSize: 14, 
+      border: { pt: 1, color: 'FFFFFF' }, 
+      fill: { color: 'FFFFFF' } // Optional: adjust fill for table background
     });
 
     // Similar for utilization summary
@@ -240,24 +244,19 @@ export const generatePptReport = (provinces, programs) => {
     summarySlide2.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
 
     summarySlide2.addText('SUMMARY PER MUNICIPALITY', {
-      x: 0.9,
-      y: 0.5, w: '60%', fontSize: 20, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
-    });
-
-    summarySlide2.addText(`${province.col_province.toUpperCase()}`, {
-      x: 0.9,
-      y: 1.0, w: '60%', fontSize: 16, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+      x: 0.5,
+      y: 0.5, w: '70%', fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
     });
 
     const summaryTableHeader2 = [
       [
-        { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-        { text: 'SERVED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
+        { text: `${province.col_province.toUpperCase()}`, options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
+        { text: 'SERVED', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 2 } }
       ],
       [
-        { text: 'Municipality', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-        { text: 'Physical Served', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
-        { text: 'Fund Utilized (Php)', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+        { text: 'Municipality', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+        { text: 'Physical Served', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+        { text: 'Fund Utilized (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
       ]
     ];
 
@@ -268,12 +267,12 @@ export const generatePptReport = (provinces, programs) => {
     Object.values(province.districts || {}).forEach(district => {
       if (district.district) {
         rows2.push([
-          { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 8, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
+          { text: `${getOrdinal(district.district)} Congressional District`, options: { bold: true, fontSize: 10, align: 'left', color: '0000FF', fontFace: 'Arial', colspan: 3 } }
         ]);
       }
 
       district.cities.forEach((city, index) => {
-        const fillColor = index % 2 === 0 ? 'F0F8FF' : 'E6E6FA';
+        const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
         const served = city.total_physical || 0;
         const utilized = city.total_utilization || 0;
 
@@ -281,21 +280,29 @@ export const generatePptReport = (provinces, programs) => {
         totalFundUtilized += utilized;
 
         rows2.push([
-          { text: city.col_citymuni, options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: fillColor } },
-          { text: served.toString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } },
-          { text: utilized.toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial', fill: fillColor } }
+          { text: city.col_citymuni, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+          { text: served.toString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } },
+          { text: utilized.toLocaleString(), options: { fontSize: 10, align: 'right', fontFace: 'Arial', fill: fillColor } }
         ]);
       });
     });
 
     rows2.push([
-      { text: 'TOTAL', options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-      { text: totalPhysicalServed.toString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } },
-      { text: totalFundUtilized.toLocaleString(), options: { bold: true, fontSize: 8, align: 'right', fontFace: 'Arial', fill: 'ADD8E6' } }
+      { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+      { text: totalPhysicalServed.toString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } },
+      { text: totalFundUtilized.toLocaleString(), options: { bold: true, fontSize: 10, align: 'right', fontFace: 'Arial', fill: 'FFD700' } }
     ]);
 
     summarySlide2.addTable([...summaryTableHeader2, ...rows2], {
-      x: 0.5, y: 1.5, w: 7.5, colW: [3.5, 1.5, 2.5], h: 3.5, border: { pt: 1, color: 'FFFFFF' }
+      x: 1.0, // Adjust x-position as needed
+      y: 1.0, // Adjust y-position as needed
+      w: 7,   // Reduced width of the entire table
+      h: 3.5, // Height of the table
+      colW: [2.5, 2, 2], // Adjust column widths: [Municipality, Physical Target, Fund Allocated]
+      rowH: 0.1, // Adjust row height
+      fontSize: 14, 
+      border: { pt: 1, color: 'FFFFFF' }, 
+      fill: { color: 'FFFFFF' } // Optional: adjust fill for table background
     });
   });
 

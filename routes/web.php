@@ -156,3 +156,4 @@ use App\Http\Controllers\ProgramReportController;
 Route::get('/admin/program-reports', [ProgramReportController::class, 'index'])->name('program.reports');
 
 
+Route::get('/utilization-summary/{programId}/{provinceCode}', [ReportsController::class, 'getUtilizationSummary']);
