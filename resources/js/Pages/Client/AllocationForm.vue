@@ -76,8 +76,6 @@ const fetchProvinces = async () => {
   }
 };
 
-// Fetch cities based on the selected province's psgc
-// Fetch cities based on the selected province's PSGC
 const fetchCities = async (provincePsgc) => {
   try {
     const response = await fetch(`/address/cities/${provincePsgc}`);
@@ -194,11 +192,11 @@ const close = () => {
         <div class="mb-2">
           <label class="block text-sm font-bold mb-1">City/Municipality</label>
           <select v-model="form.city_municipality" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-  <option value="">Select a City/Municipality</option>
-  <option v-for="city in cities" :key="city.psgc" :value="city.col_citymuni">
-    {{ city.col_citymuni }}
-  </option>
-</select>
+            <option value="">Select a City/Municipality</option>
+            <option v-for="city in cities" :key="city.psgc" :value="city.col_citymuni">
+           {{ city.col_citymuni }}
+          </option>
+        </select>
         </div>
 
         <!-- Program Input (Read-only) -->

@@ -167,6 +167,12 @@ onMounted(() => {
   fetchPrograms();
 });
 
+const isSidebarExpanded = ref(false);
+
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
 </script>
 
 <style scoped>
@@ -176,15 +182,14 @@ onMounted(() => {
 </style>
 
 <template>
-  <Layout />
-  <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-       <!-- Header -->
-       <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-      <div class="py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-900">Programs</h1>
-      </div>
-    </header>
-
+    <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
       <main class="flex-1 w-full max-w-7xl mx-auto py-4">
         <div class="bg-white p-6 rounded shadow-md">
           <!-- Search bar and Add Program button -->
@@ -207,16 +212,16 @@ onMounted(() => {
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th> <!-- Logo Column First -->
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th> <!-- Name Column Second -->
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submission Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th> 
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th> 
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submission Access</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
                 <!-- Use paginatedPrograms for pagination -->
                 <tr v-for="program in filteredPrograms" :key="program.id">
-                  <td class="px-6 py-2 whitespace-nowrap">
+                  <td class="px-6 py-1 whitespace-nowrap">
                     <img
                       v-if="program.logo"
                       :src="`/${program.logo}`"
@@ -225,16 +230,28 @@ onMounted(() => {
                       style="max-width: 100px; max-height: 60px;"
                     />
                   </td>
-                  <td class="px-6 py-2 whitespace-nowrap">{{ program.name }}</td>
-                  <td class="px-6 py-2 whitespace-nowrap">
-                    <button @click="openStatusModal(program)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">
-                      Status
-                    </button>
+                  <td class="px-6 py-1 whitespace-nowrap">{{ program.name }}</td>
+                  <td class="px-6 py-1 whitespace-nowrap">
+                    <div @click="openStatusModal(program)" class="cursor-pointer">
+                      <svg class="h-6 w-6 text-stone-900" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z"/>
+                        <rect x="5" y="11" width="14" height="10" rx="2"/>
+                        <circle cx="12" cy="16" r="1"/>
+                        <path d="M8 11v-5a4 4 0 0 1 8 0"/>
+                      </svg>
+                    </div>
+
                   </td>
-                  <td class="px-6 py-2 whitespace-nowrap">
-                    <button @click="openFormModal(program)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">
-                      Edit
-                    </button>
+                  <td class="px-6 py-1 whitespace-nowrap">
+                    <div @click="openFormModal(program)" class="cursor-pointer align-center">
+                      <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z"/>
+                        <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                        <line x1="16" y1="5" x2="19" y2="8"/>
+                      </svg>
+                    </div>
+
                   </td>
                 </tr>
               </tbody>

@@ -70,11 +70,11 @@ const handleSidebarExpanded = (expanded) => {
 
 <template>
   <div class="flex">
-    <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <Layout @sidebar-expanded="handleSidebarExpanded" />
     <div
       :class="{
         'ml-60': isSidebarExpanded,
-        'ml-16': !isSidebarExpanded
+        'ml-16': !isSidebarExpanded,
       }"
       class="flex-1 p-4 transition-all duration-300 bg-gray-100"
     >
@@ -82,9 +82,6 @@ const handleSidebarExpanded = (expanded) => {
       <header class="bg-white shadow-sm w-full max-w-6xl mx-auto mb-6">
         <div class="py-4 px-4 sm:px-6 lg:px-4">
           <div class="flex justify-between items-center">
-            <!-- Title -->
-            <h1 class="text-2xl font-semibold text-gray-900">REGION XI ACCOMPLISHMENT REPORT ANALYSIS DASHBOARD</h1>
-            
             <!-- Filter Section (Inline with Title) -->
             <div class="flex items-center space-x-4">
               <select v-model="selectedYear" class="p-2 border rounded">
@@ -93,7 +90,10 @@ const handleSidebarExpanded = (expanded) => {
               <select v-model="selectedQuarter" class="p-2 border rounded">
                 <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
               </select>
-              <button @click="applyFilter" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+              <button
+                @click="applyFilter"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
                 Apply Filter
               </button>
             </div>
@@ -125,54 +125,57 @@ const handleSidebarExpanded = (expanded) => {
       <div class="bg-white p-4 rounded shadow mb-4 w-full max-w-6xl mx-auto">
         <h3 class="text-center text-xl font-bold mb-4">Fund Distribution Over Time</h3>
         <div class="h-auto w-full">
-          <ReportsChart 
-          :allocations="allocations" 
-          :utilizations="utilizations"
-          :selectedYear="selectedYear"
-          :selectedQuarter="selectedQuarter"
-        />
+          <ReportsChart
+            :allocations="allocations"
+            :utilizations="utilizations"
+            :selectedYear="selectedYear"
+            :selectedQuarter="selectedQuarter"
+          />
         </div>
       </div>
 
-      <!-- Fund Allocation Distribution for Programs -->
-      <div class="bg-white p-4 rounded shadow mb-4 w-full max-w-6xl mx-auto overflow-auto">
-        <h3 class="text-center text-xl font-bold mb-4">Fund Allocation Distribution by Program</h3>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="program in programData" :key="program.program">
-                <td class="px-6 py-4 whitespace-nowrap">{{ program.program }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{ calculatePercentageVariance(program.total_allocation, program.total_utilization) }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Side by side layout for tables -->
+      <div class="flex flex-col md:flex-row gap-4 mb-4 w-full max-w-6xl mx-auto">
+        <!-- Fund Allocation Distribution for Programs -->
+        <div class="bg-white p-4 rounded shadow flex-1 overflow-auto">
+          <h3 class="text-center text-xl font-bold mb-4">Fund Allocation Distribution by Program</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                  <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="program in programData" :key="program.program">
+                  <td class="px-4 py-4 whitespace-nowrap">{{ program.program }}</td>
+                  <td class="px-2 py-1 whitespace-nowrap">{{ calculatePercentageVariance(program.total_allocation, program.total_utilization) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <!-- Fund Allocation Distribution and Provinces Table -->
-      <div class="bg-white p-4 rounded shadow w-full max-w-6xl mx-auto overflow-auto">
-        <h3 class="text-center text-xl font-bold mb-4">Fund Allocation and Utilization per Province</h3>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="province in provinceData" :key="province.province">
-                <td class="px-6 py-4 whitespace-nowrap">{{ province.province }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{ calculatePercentageVariance(province.total_allocation, province.total_utilization) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Fund Allocation Distribution and Provinces Table -->
+        <div class="bg-white p-4 rounded shadow flex-1 overflow-auto">
+          <h3 class="text-center text-xl font-bold mb-4">Fund Allocation and Utilization per Province</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="province in provinceData" :key="province.province">
+                  <td class="px-6 py-4 whitespace-nowrap">{{ province.province }}</td>
+                  <td class="px-4 py-1 whitespace-nowrap">{{ calculatePercentageVariance(province.total_allocation, province.total_utilization) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

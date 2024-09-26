@@ -307,19 +307,24 @@ const goToPage = (page) => {
     currentPage.value = page;
   }
 };
+const isSidebarExpanded = ref(false);
 
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
 </script>
 
 <template>
-  <Layout />
-  <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-    <!-- Header -->
-    <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-      <div class="py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-900">Accounts</h1>
-      </div>
-    </header>
-
+  <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
+    <!-- Header can be repositioned or removed as needed -->
     <main class="flex-1 w-full max-w-7xl mx-auto py-4">
       <div class="bg-white p-6 rounded shadow-md">
         <div class="flex flex-wrap justify-between mb-4">
@@ -329,14 +334,6 @@ const goToPage = (page) => {
               Search
             </button>
           </div>
-       <!--   <div class="flex items-center">
-            <label for="filter" class="mr-2 text-sm font-bold text-gray-700">Filter:</label>
-            <select v-model="filter" id="filter" class="block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
-              <option value="all">All</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>-->
         </div>
 
         <div class="overflow-x-auto">
@@ -358,19 +355,18 @@ const goToPage = (page) => {
                   <span>{{ user.first_name }} {{ user.middle_name }} {{ user.last_name }} {{ user.suffix }}</span>
                 </td>
                 <td class="px-6 py-2">
-  <select 
-    v-model="user.program.id" 
-    @change="confirmUserProgramChange(user.id, $event.target.value)"
-    :disabled="user.role === 'admin'"
-    class="block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-  >
-  <option value="">Select a program</option>
-    <option v-for="program in programs" :key="program.id" :value="program.id">
-      {{ program.name }}  <!-- Display the program name -->
-    </option>
-  </select>
-</td>
-
+                  <select 
+                    v-model="user.program.id" 
+                    @change="confirmUserProgramChange(user.id, $event.target.value)"
+                    :disabled="user.role === 'admin'"
+                    class="block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  >
+                    <option value="">Select a program</option>
+                    <option v-for="program in programs" :key="program.id" :value="program.id">
+                      {{ program.name }}  <!-- Display the program name -->
+                    </option>
+                  </select>
+                </td>
                 <td class="px-6 py-2">
                   <select 
                     v-model="user.role"
@@ -400,49 +396,50 @@ const goToPage = (page) => {
         </div>
 
         <!-- Pagination Controls -->
-<div class="mt-4 flex justify-between items-center">
-  <button
-    @click="prevPage"
-    :disabled="currentPage === 1"
-    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
-  >
-    &larr; Previous
-  </button>
-  
-  <button
-    @click="nextPage"
-    :disabled="currentPage === totalPages"
-    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
-  >
-    Next &rarr;
-  </button>
-</div>
+        <div class="mt-4 flex justify-between items-center">
+          <button
+            @click="prevPage"
+            :disabled="currentPage === 1"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
+          >
+            &larr; Previous
+          </button>
+          
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
+          >
+            Next &rarr;
+          </button>
+        </div>
       </div>
     </main>
-     <!-- Modal -->
-<div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center">
-  <div class="bg-white p-6 rounded shadow-md w-96">
-    <h2 class="text-xl font-semibold mb-4">
-      {{ modalType === 'program' ? 'Confirm Program Change' : 'Confirm User Type Change' }}
-    </h2>
-    <p v-if="modalType === 'program'">
-      Are you sure you want to change the program to <strong>{{ newProgramName }}</strong>? <!-- Display the program name -->
-    </p>
-    <p v-else>
-      Are you sure you want to change the user type to <strong>{{ newUserType }}</strong>?
-    </p>
-    <div class="mt-6 flex justify-end">
-      <button @click="cancelChange" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">
-        Cancel
-      </button>
-      <button 
-        @click="modalType === 'program' ? updateUserProgram() : updateUserRole()"
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-      >
-        Confirm
-      </button>
-    </div>
   </div>
-</div>
+
+  <!-- Modal -->
+  <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center">
+    <div class="bg-white p-6 rounded shadow-md w-96">
+      <h2 class="text-xl font-semibold mb-4">
+        {{ modalType === 'program' ? 'Confirm Program Change' : 'Confirm User Type Change' }}
+      </h2>
+      <p v-if="modalType === 'program'">
+        Are you sure you want to change the program to <strong>{{ newProgramName }}</strong>? <!-- Display the program name -->
+      </p>
+      <p v-else>
+        Are you sure you want to change the user type to <strong>{{ newUserType }}</strong>?
+      </p>
+      <div class="mt-6 flex justify-end">
+        <button @click="cancelChange" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">
+          Cancel
+        </button>
+        <button 
+          @click="modalType === 'program' ? updateUserProgram() : updateUserRole()"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
   </div>
 </template>

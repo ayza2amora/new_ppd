@@ -117,7 +117,7 @@ public function update(Request $request, Allocation $allocation)
         return back()->withErrors(['program' => 'You cannot update an allocation for a restricted program.'])->withInput();
     }
 
-    // Fetch the PSGC codes for province and city_municipality based on names
+    // Fetch the PSGC codes for province and city_municipality 
     $province = Province::where('col_province', $request->province)->first();
     $city_municipality = CityMuni::where('col_citymuni', $request->city_municipality)->first();
 

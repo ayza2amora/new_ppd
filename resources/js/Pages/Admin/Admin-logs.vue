@@ -2,7 +2,7 @@
 import Layout from '../../Layouts/admin-layout.vue';
 import { ref, computed } from 'vue'; // Import `computed` for pagination
 
-const today = new Date().toISOString().split('T')[0]; 
+const today = new Date().toISOString().split('T')[0];
 
 const props = defineProps({
   logs: Array, // logs passed as props
@@ -11,7 +11,7 @@ const props = defineProps({
 const logs = ref(props.logs);
 
 const currentPage = ref(1); // Set initial page to 1
-const pageSize = 10; // Show 5 logs per page
+const pageSize = 8; // Show 5 logs per page
 
 const searchDate = ref('');
 
@@ -26,7 +26,6 @@ const filteredLogs = computed(() => {
   });
 });
 
-
 // Paginated logs based on filtered logs
 const paginatedLogs = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
@@ -34,12 +33,10 @@ const paginatedLogs = computed(() => {
   return filteredLogs.value.slice(start, end);
 });
 
-
 // Calculate total pages
 const totalPages = computed(() => {
   return Math.ceil(logs.value.length / pageSize);
 });
-
 
 // Function to change page
 const changePage = (page) => {
@@ -52,21 +49,27 @@ const changePage = (page) => {
 const pageNumbers = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
+
+const isSidebarExpanded = ref(false);
+
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
 </script>
 
 <template>
-  <Layout />
-  <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-    <!-- Header -->
-    <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-      <div class="py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-900">Logs</h1>
-      </div>
-    </header>
-
+   <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
     <!-- Main content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto py-6">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
+    <main class="flex-1 w-full max-w-7xl mx-auto py-4"> <!-- Adjusted padding from 'py-6' to 'py-2' to remove top space -->
+      <div class="bg-white p-6 rounded-lg shadow-lg"> <!-- Reduced padding inside the content from 'p-6' to 'p-4' -->
         
         <!-- Date filter -->
         <div class="flex justify-start items-center mb-6">
@@ -82,19 +85,19 @@ const pageNumbers = computed(() => {
 
         <!-- Logs table -->
         <div class="overflow-x-auto">
-          <table class="min-w-full bg-white border border-gray-200 rounded-lg divide-y divide-gray-200 shadow-sm">
-            <thead class="bg-gray-50 text-left">
+          <table class="min-w-full bg-white border border-gray-200 rounded-lg divide-y divide-gray-200 shadow-lg">
+            <thead class="bg-blue-100 text-left">
               <tr>
-                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                <th class="px-6 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
+                <th class="px-6 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider">Description</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-gray-50 transition-colors duration-200">
-                <td class="px-6 py-4 text-gray-800">{{ new Date(log.created_at).toLocaleDateString() }}</td>
-                <td class="px-6 py-4 text-gray-800">{{ log.user?.first_name }}{{ log.user?.last_name }}</td> <!-- Concatenate first and last name -->
-                <td class="px-6 py-4 text-gray-800">{{ log.action }}: {{ log.previous_value }} -> {{ log.new_value }}</td>
+              <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-blue-50 transition-colors duration-200">
+                <td class="px-6 py-1 text-gray-800 font-semibold">{{ new Date(log.created_at).toLocaleDateString() }}</td>
+                <td class="px-6 py-1 text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis">{{ log.user.first_name }} {{ log.user.last_name }}</td>
+                <td class="px-6 py-1 text-gray-800">{{ log.action }}: {{ log.previous_value }} -> {{ log.new_value }}</td>
               </tr>
             </tbody>
           </table>
@@ -109,7 +112,9 @@ const pageNumbers = computed(() => {
           >
             &larr; Previous
           </button>
-          
+
+          <!-- Removed page number display here -->
+
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages"

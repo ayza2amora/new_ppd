@@ -4,28 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\Program;
 use App\Models\Province;
+use Illuminate\Http\Request;
+use App\Models\Allocation;
+use App\Models\Utilization;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ReportController extends Controller
-{
-    public function index()
+{    
+    public function index(Request $request)
     {
+        // Fetch year and quarter from request, default to current year and quarter if not provided
+        $selectedYear = $request->input('year', date('Y'));
+        $selectedQuarter = $request->input('quarter', ceil(date('n') / 3));
+    
+        // Available years for the filter (e.g., last 5 years including the current year)
+        $availableYears = range(date('Y'), date('Y') - 5);
+    
+        // Available quarters
+        $availableQuarters = [1, 2, 3, 4];
+    
         // Fetch all provinces along with their associated city municipalities, allocations, and utilizations
-        $provinces = Province::with(['citymuni.allocations', 'citymuni.utilizations'])->get();
-
+        $provinces = Province::with(['citymuni.allocations' => function($query) use ($selectedYear, $selectedQuarter) {
+            // Filter allocations by year and quarter
+            $query->whereYear('created_at', $selectedYear)
+                  ->where(DB::raw('QUARTER(created_at)'), $selectedQuarter);
+        }, 'citymuni.utilizations' => function($query) use ($selectedYear, $selectedQuarter) {
+            // Filter utilizations by year and quarter
+            $query->whereYear('created_at', $selectedYear)
+                  ->where(DB::raw('QUARTER(created_at)'), $selectedQuarter);
+        }])->get();
+    
         // Group cities by province and district, including allocation and utilization data
         $groupedProvinces = $provinces->map(function ($province) {
-            // Group cities by district within each province
             $groupedCities = $province->citymuni->groupBy('district');
-
-            // Sum allocation and utilization for the province
+    
             $totalProvinceAllocation = $province->citymuni->flatMap->allocations->sum('fund_allocation');
             $totalProvinceUtilization = $province->citymuni->flatMap->utilizations->sum('fund_utilized');
-            $totalProvinceTarget = $province->citymuni->flatMap->allocations->sum('target'); // Assuming there's a `target` field
-            $totalProvincePhysical = $province->citymuni->flatMap->utilizations->sum('physical'); // Assuming there's a `physical` field
-
-            // Return province with grouped cities by district and include allocations/utilizations
+            $totalProvinceTarget = $province->citymuni->flatMap->allocations->sum('target');
+            $totalProvincePhysical = $province->citymuni->flatMap->utilizations->sum('physical');
+    
             return [
                 'psgc' => $province->psgc,
                 'col_province' => $province->col_province,
@@ -37,41 +55,38 @@ class ReportController extends Controller
                     return [$district => [
                         'district' => $district,
                         'cities' => $cities->map(function ($city) {
-                            // Sum allocations and utilizations for cities
                             $totalAllocation = $city->allocations->sum('fund_allocation');
                             $totalUtilization = $city->utilizations->sum('fund_utilized');
-                            $totalTarget = $city->allocations->sum('target'); // Assuming there's a `target` field
-                            $totalPhysical = $city->utilizations->sum('physical'); // Assuming there's a `physical` field
-
-                            // Fetch all programs within the city
+                            $totalTarget = $city->allocations->sum('target');
+                            $totalPhysical = $city->utilizations->sum('physical');
+    
                             $programsByCity = DB::table('programs')
                                 ->leftJoin('allocations', 'programs.id', '=', 'allocations.program')
                                 ->leftJoin('utilizations', 'programs.id', '=', 'utilizations.program')
-                                ->where('allocations.city_municipality', $city->psgc) // Fetch by `psgc`
+                                ->where('allocations.city_municipality', $city->psgc)
                                 ->select(
                                     'programs.id as program_id',
                                     'programs.name as program_name',
-                                    'programs.logo as program_logo', // Fetch the logo
+                                    'programs.logo as program_logo',
                                     DB::raw('COALESCE(SUM(allocations.target), 0) as total_target'),
                                     DB::raw('COALESCE(SUM(utilizations.physical), 0) as total_physical'),
                                     DB::raw('COALESCE(SUM(allocations.fund_allocation), 0) as total_allocation'),
                                     DB::raw('COALESCE(SUM(utilizations.fund_utilized), 0) as total_utilization')
                                 )
-                                ->groupBy('programs.id', 'programs.name', 'programs.logo') // Group by program
+                                ->groupBy('programs.id', 'programs.name', 'programs.logo')
                                 ->get()
                                 ->map(function ($program) {
                                     return [
                                         'program_id' => $program->program_id,
                                         'program_name' => $program->program_name,
-                                        'program_logo' => $program->program_logo, 
+                                        'program_logo' => $program->program_logo,
                                         'total_target' => $program->total_target,
                                         'total_physical' => $program->total_physical,
                                         'total_allocation' => $program->total_allocation,
                                         'total_utilization' => $program->total_utilization,
                                     ];
                                 });
-
-                            // Include program IDs in allocations and utilizations
+    
                             $allocations = $city->allocations->map(function ($allocation) {
                                 return [
                                     'program_id' => $allocation->program,
@@ -79,7 +94,7 @@ class ReportController extends Controller
                                     'target' => $allocation->target,
                                 ];
                             });
-
+    
                             $utilizations = $city->utilizations->map(function ($utilization) {
                                 return [
                                     'program_id' => $utilization->program,
@@ -87,7 +102,7 @@ class ReportController extends Controller
                                     'physical' => $utilization->physical,
                                 ];
                             });
-
+    
                             return [
                                 'psgc' => $city->psgc,
                                 'col_citymuni' => $city->col_citymuni,
@@ -97,46 +112,49 @@ class ReportController extends Controller
                                 'total_physical' => $totalPhysical,
                                 'allocations' => $allocations,
                                 'utilizations' => $utilizations,
-                                'programs' => $programsByCity, // Add programs grouped by city
+                                'programs' => $programsByCity,
                             ];
                         }),
                     ]];
                 }),
             ];
         });
-
-        // Fetch all programs across all provinces (for summary)
+    
         $programs = DB::table('programs')
             ->leftJoin('allocations', 'programs.id', '=', 'allocations.program')
             ->leftJoin('utilizations', 'programs.id', '=', 'utilizations.program')
             ->select(
                 'programs.id as program_id',
                 'programs.name as program_name',
-                'programs.logo as program_logo', // Fetch the logo
+                'programs.logo as program_logo',
                 DB::raw('COALESCE(SUM(allocations.target), 0) as total_target'),
                 DB::raw('COALESCE(SUM(utilizations.physical), 0) as total_physical'),
                 DB::raw('COALESCE(SUM(allocations.fund_allocation), 0) as total_allocation'),
                 DB::raw('COALESCE(SUM(utilizations.fund_utilized), 0) as total_utilization')
             )
-            ->groupBy('programs.id', 'programs.name', 'programs.logo') // Group by program ID
+            ->groupBy('programs.id', 'programs.name', 'programs.logo')
             ->get()
             ->map(function ($program) {
                 return [
                     'program_id' => $program->program_id,
                     'program_name' => $program->program_name,
-                    'program_logo' => $program->program_logo, 
+                    'program_logo' => $program->program_logo,
                     'total_target' => $program->total_target,
                     'total_physical' => $program->total_physical,
                     'total_allocation' => $program->total_allocation,
                     'total_utilization' => $program->total_utilization,
                 ];
             });
-
+    
         // Render the view with grouped provinces and programs
         return Inertia::render('Admin/Admin-reports', [
             'provinces' => $groupedProvinces,
-            'programs' => $programs, // Pass programs with associated data
-            'isPreview' => true,
+            'programs' => $programs,
+            'selectedYear' => $selectedYear,
+            'selectedQuarter' => $selectedQuarter,
+            'availableYears' => $availableYears, // Available years for the dropdown
+            'availableQuarters' => $availableQuarters, // Available quarters for the dropdown
         ]);
     }
+    
 }

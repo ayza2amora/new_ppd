@@ -10,6 +10,12 @@ class Province extends Model
     protected $primaryKey = 'psgc';
     public $timestamps = false;
 
+    protected $fillable = [
+        'psgc', // This should be your primary key or unique identifier
+        'col_province', // The name of the province
+      
+    ];
+
   
     public function cityMuni()
     {

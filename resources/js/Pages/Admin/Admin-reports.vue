@@ -244,26 +244,56 @@ const filteredPrograms = computed(() => {
   }
   return props.programs.filter(program => program.id === selectedProgram.value.id); // Filter based on selected program's ID
 });
+
+const isSidebarExpanded = ref(false);
+
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
+
+const selectedYear = ref(props.selectedYear || new Date().getFullYear());
+const selectedQuarter = ref(props.selectedQuarter || Math.ceil((new Date().getMonth() + 1) / 3));
+
+// Define options for year and quarter
+const years = [2022, 2023, 2024];  // Add as needed
+const quarters = [1, 2, 3, 4];
+
+// Function to reload the page with selected year and quarter
+const applyFilter = () => {
+  window.location.href = `?year=${selectedYear.value}&quarter=${selectedQuarter.value}`;
+};
 </script>
 
 <template>
-  <Layout />
-  <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-  
+  <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
     <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
       <!-- Search bar and download button -->
       <h2 class="text-xl font-semibold mb-4 text-center"><strong>ALL PROGRAMS</strong></h2>
+      
       <div class="flex justify-between mb-2 space-x-4">
-          
-        <!-- Program Selection Dropdown -->
-        <select v-model="selectedProgram" class="px-4 py-2 border border-gray-300 rounded-md">
-          
-          <option value="all">All Programs</option>
-          <option v-for="program in props.programs" :key="program.id" :value="program">
-            {{ program.program_name }}
-          </option>
-        </select>
-
+          <!-- Filter Section (Inline with Title) -->
+          <div class="flex items-center space-x-4">
+              <select v-model="selectedYear" class="p-2 border rounded">
+                <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
+              </select>
+              <select v-model="selectedQuarter" class="p-2 border rounded">
+                <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
+              </select>
+              <button
+                @click="applyFilter"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Apply Filter
+              </button>
+            </div>
         <!-- Province Selection Dropdown -->
       <div class="flex justify-between mb-4 space-x-4">     
         <select v-model="selectedProvince" class="px-4 py-2 border border-gray-300 rounded-md">

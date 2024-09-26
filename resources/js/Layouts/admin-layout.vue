@@ -54,8 +54,8 @@ const toggleSidebar = (state) => {
         :href="route(item.route)"
         :class="[
           'flex items-center py-4 px-4',
-          { 'bg-blue-600': currentRoute === item.route },
-          { 'hover:bg-blue-400': currentRoute !== item.route }
+          { 'bg-blue-300': currentRoute === item.route },
+          { 'hover:bg-blue-200': currentRoute !== item.route }
         ]"
       >
         <img :src="`/ppd-images/${item.icon}`" :alt="`${item.text} Icon`" class="h-6 w-6 mr-2" />

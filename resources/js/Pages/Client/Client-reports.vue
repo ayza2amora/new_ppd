@@ -226,6 +226,12 @@ const utilizationPageNumbers = computed(() => {
   return Array.from({ length: totalPages }, (_, i) => i + 1);
 });
 
+const isSidebarExpanded = ref(false);
+
+// This function updates the content layout when the sidebar is expanded or collapsed
+const handleSidebarExpanded = (expanded) => {
+  isSidebarExpanded.value = expanded;
+};
 </script>
 
 <style scoped>
@@ -240,148 +246,188 @@ const utilizationPageNumbers = computed(() => {
 .shadow-lg {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+.button-improved {
+  background-color: #4CAF50; /* A modern green color */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effects */
+  font-weight: 600;
+}
+
+.button-improved:hover {
+  background-color: #45a049; /* Slightly darker on hover */
+  transform: translateY(-2px); /* Raise the button */
+}
+
+.button-improved:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.button-improved-blue {
+  background-color: #007BFF; /* Bootstrap-like blue */
+}
+
+.button-improved-blue:hover {
+  background-color: #0056b3; /* Darker on hover */
+}
+
 </style>
 
 <template>
-  <Layout />
-  <div class="ml-60 flex flex-col min-h-screen bg-gray-100 p-6">
-    
-    <!-- Header -->  
-    <header class="bg-white shadow-sm w-full max-w-7xl mx-auto">
-      <div class="py-2 px-4 sm:px-6 lg:px-8 flex ">
-        <!-- Display the logo only if it exists -->
+<Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+    >
+    <!-- Main white container -->
+    <div class="bg-white p-4 rounded shadow-md">
+      
+      <!-- Header with Program Logo and Name inside the white container -->
+      <div class="flex items-center space-x-4 mb-4">
         <img :src="`/${programLogo}`" alt="Program Logo" class="h-12 w-12" v-if="programLogo" />
-        <h1 class="text-2xl font-semibold text-gray-900 py-2">{{ programName }}</h1> 
+        <h1 class="text-2xl font-semibold text-gray-900">{{ programName }}</h1>
       </div>
-    </header>
-
-    <!-- Main content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto py-4">
-      <div class="bg-white p-6 rounded shadow-md">
-        
-        <!-- Filter and Search -->
-        <div class="flex justify-between mb-2">
-          <!-- Date Picker and Search Button -->
-          <div class="flex items-center space-x-2">
-            <input v-model="searchDate" type="date" class="p-2 border rounded" :max="maxDate" placeholder="dd/mm/yyyy" />
-            <button @click="searchReportsByDate" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-              Search
-            </button>
-          </div>
-
-            <!-- Form buttons to open Allocation or Utilization forms -->
-          <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-            <button @click="openAllocationForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-2 rounded">
-              Allocation Form
-            </button>
-            <button @click="openUtilizationForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-2 rounded">
-              Utilization Form
-            </button>
-          </div>
+      
+      <!-- Filter and Form buttons -->
+      <div class="flex justify-between mb-2">
+        <!-- Date Picker and Search Button -->
+        <div class="flex items-center space-x-2">
+          <input v-model="searchDate" type="date" class="p-2 border rounded" :max="maxDate" placeholder="dd/mm/yyyy" />
+          <button @click="searchReportsByDate" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            Search
+          </button>
         </div>
 
-        <!-- Allocation and Utilization Forms -->
-        <AllocationForm :show="showAllocationForm" :editing-item="editingItem" :programName="programName" :programStatus="programStatus" @close="closeAllocationForm" @formSubmitted="handleFormSubmitted" />
-        <UtilizationForm :show="showUtilizationForm" :editing-item="editingItem" :programName="programName" :programStatus="programStatus" @close="closeUtilizationForm" @formSubmitted="handleFormSubmitted" />
-        
-          <!-- Success Modal -->
-          <div v-if="showSuccessModal" class="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
-            <div class="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg border border-blue-500 shadow-lg">
-              <div class="flex justify-center pb-3">
-                <p class="text-2xl font-bold text-blue-600">Success!</p>
-              </div>
-              <p class="text-center mb-4">{{ successMessage }}</p>
-              <div class="flex items-center justify-center">
-                <button @click="closeSuccessModal" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline">OK</button>
-              </div>
-            </div>
-          </div>
+        <!-- Form buttons to open Allocation or Utilization forms -->
+        <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+          <!-- Allocation Form Button -->
+    <button @click="openAllocationForm()" class="button-improved button-improved-blue">
+        Allocation Form
+    </button>
 
-          <!-- Allocations Table -->
-          <div class="bg-white p-4 rounded shadow-md mb-6">
-            <h2 class="text-lg font-semibold mb-2">Allocation Reports</h2>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
-                   
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Allocated</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="allocation in paginatedAllocations" :key="allocation.id">
-                    <td class="border px-4 py-1">{{ allocation.province.col_province }}</td>
-                    <td class="border px-4 py-1">{{ allocation.citymuni?.col_citymuni }}</td>
-                  
-                    <td class="border px-4 py-1">{{ allocation.target }}</td>
-                    <td class="border px-4 py-1">₱ {{ allocation.fund_allocation }}</td>
-                    <!-- Edit Button, hidden if program is restricted -->
-                    <td class="px-6 py-1">
-                      <button v-if="programStatus === 0" @click="editItem(allocation)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-           <!-- Pagination Controls for Allocations -->
-<div class="flex justify-center space-x-2 items-center mt-4">
-  <button @click="prevAllocationPage" :disabled="currentAllocationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
-    &larr; Previous
-  </button>
-  <button @click="nextAllocationPage" :disabled="currentAllocationPage === allocationPageNumbers.length" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
-    Next &rarr;
-  </button>
-</div>
-          </div>
-
-        <!-- Utilizations Table -->
-        <div class="bg-white p-4 rounded shadow-md">
-          <h2 class="text-lg font-semibold mb-2">Utilization Reports</h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Utilized</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="utilization in paginatedUtilizations" :key="utilization.id">
-                  <td class="border px-4 py-1">{{ utilization.province.col_province }}</td>
-            <td class="border px-4 py-1">{{ utilization.citymuni?.col_citymuni }} </td>
-                  <td class="border px-4 py-1">{{ utilization.physical }}</td>
-                  <td class="border px-4 py-1">₱ {{ utilization.fund_utilized }}</td>
-                  <!-- Edit Button, hidden if program is restricted -->
-                  <td class="px-6 py-1">
-                      <button v-if="programStatus === 0" @click="editItem(utilization)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">
-                        Edit
-                      </button>
-                    </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-      <!-- Pagination Controls for Utilizations -->
-<div class="flex justify-center space-x-2 items-center mt-4">
-  <button @click="prevUtilizationPage" :disabled="currentUtilizationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
-    &larr; Previous
-  </button>
-  <button @click="nextUtilizationPage" :disabled="currentUtilizationPage === utilizationPageNumbers.length" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
-    Next &rarr;
-  </button>
-</div>
+<!-- Utilization Form Button -->
+<button @click="openUtilizationForm()" class="button-improved button-improved-blue">
+  Utilization Form
+</button>
         </div>
       </div>
-    </main>
+
+      <!-- Allocation and Utilization Forms -->
+      <AllocationForm :show="showAllocationForm" :editing-item="editingItem" :programName="programName" :programStatus="programStatus" @close="closeAllocationForm" @formSubmitted="handleFormSubmitted" />
+      <UtilizationForm :show="showUtilizationForm" :editing-item="editingItem" :programName="programName" :programStatus="programStatus" @close="closeUtilizationForm" @formSubmitted="handleFormSubmitted" />
+
+      <!-- Success Modal -->
+      <div v-if="showSuccessModal" class="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
+        <div class="relative p-8 bg-white w-full max-w-md m-auto flex-col flex rounded-lg border border-blue-500 shadow-lg">
+          <div class="flex justify-center pb-3">
+            <p class="text-2xl font-bold text-blue-600">Success!</p>
+          </div>
+          <p class="text-center mb-4">{{ successMessage }}</p>
+          <div class="flex items-center justify-center">
+            <button @click="closeSuccessModal" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline">OK</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocations Table -->
+      <div class="bg-white p-4 rounded shadow-md mb-6">
+        <h2 class="text-lg font-semibold mb-2">Allocation Reports</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Allocated</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="allocation in paginatedAllocations" :key="allocation.id">
+                <td class="border px-4 py-1">{{ allocation.province.col_province }}</td>
+                <td class="border px-4 py-1">{{ allocation.citymuni.col_citymuni }}</td>
+                <td class="border px-4 py-1">{{ allocation.target }}</td>
+                <td class="border px-4 py-1">₱ {{ allocation.fund_allocation }}</td>
+                <td class="px-6 py-1">
+                  <div v-if="programStatus === 0" @click="editItem(allocation)" class="cursor-pointer flex justify-center items-center">
+                    <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z"/>
+                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                      <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                      <line x1="16" y1="5" x2="19" y2="8"/>
+                    </svg>
+                  </div>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination Controls for Allocations -->
+        <div class="flex justify-center space-x-2 items-center mt-4">
+          <button @click="prevAllocationPage" :disabled="currentAllocationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
+            &larr; Previous
+          </button>
+          <button @click="nextAllocationPage" :disabled="currentAllocationPage === totalAllocationPages" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Utilizations Table -->
+      <div class="bg-white p-4 rounded shadow-md">
+        <h2 class="text-lg font-semibold mb-2">Utilization Reports</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Utilized</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="utilization in paginatedUtilizations" :key="utilization.id">
+                <td class="border px-4 py-1">{{ utilization.province.col_province }}</td>
+                <td class="border px-4 py-1">{{ utilization.citymuni?.col_citymuni }}</td>
+                <td class="border px-4 py-1">{{ utilization.physical }}</td>
+                <td class="border px-4 py-1">₱ {{ utilization.fund_utilized }}</td>
+                <td class="px-6 py-1">
+                  <div v-if="programStatus === 0" @click="editItem(utilization)" class="cursor-pointer flex justify-center items-center">
+                    <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z"/>
+                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                      <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                      <line x1="16" y1="5" x2="19" y2="8"/>
+                    </svg>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination Controls for Utilizations -->
+        <div class="flex justify-center space-x-2 items-center mt-4">
+          <button @click="prevUtilizationPage" :disabled="currentUtilizationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
+            &larr; Previous
+          </button>
+          <button @click="nextUtilizationPage" :disabled="currentUtilizationPage === totalUtilizationPages" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div> <!-- End of white container -->
   </div>
 </template>
