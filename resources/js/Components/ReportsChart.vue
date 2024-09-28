@@ -23,6 +23,19 @@ const renderChart = () => {
     return;
   }
 
+  // Sort the allocations and utilizations to put Davao City first
+  const sortedAllocations = [...props.allocations].sort((a, b) => {
+    if (a.province === 'Davao City') return -1; // Move Davao City to the front
+    if (b.province === 'Davao City') return 1;
+    return 0; // Keep the rest in original order
+  });
+
+  const sortedUtilizations = [...props.utilizations].sort((a, b) => {
+    if (a.province === 'Davao City') return -1; // Move Davao City to the front
+    if (b.province === 'Davao City') return 1;
+    return 0; // Keep the rest in original order
+  });
+
   // Destroy previous chart instance if it exists
   if (chartInstance) {
     chartInstance.destroy();
@@ -32,25 +45,34 @@ const renderChart = () => {
   chartInstance = new Chart(chartRef.value, {
     type: 'bar',
     data: {
-      labels: props.allocations.map(a => a.province),
+      labels: sortedAllocations.map(a => a.province),
       datasets: [
         {
           label: 'Allocation',
           backgroundColor: 'blue',
-          data: props.allocations.map(a => a.amount)
+          data: sortedAllocations.map(a => a.amount)
         },
         {
           label: 'Utilization',
           backgroundColor: 'red',
-          data: props.utilizations.map(u => u.amount)
+          data: sortedUtilizations.map(u => u.amount)
         }
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false, // Allow height to be defined by the container
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          grid: {
+            display: false // Disable the grid lines on the y-axis
+          }
+        },
+        x: {
+          grid: {
+            display: false // Disable the grid lines on the x-axis (if desired)
+          }
         }
       }
     }
@@ -67,7 +89,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <canvas class="max-w-6xl mx-auto relative h-[60vh] w-full" ref="chartRef"></canvas>
+  <div class="relative h-[41vh] w-full"> 
+    <canvas class="w-full h-full" ref="chartRef"></canvas> 
   </div>
 </template>
