@@ -316,27 +316,33 @@ const handleSidebarExpanded = (expanded) => {
 </script>
 
 <template>
-  <Layout @sidebar-expanded="handleSidebarExpanded"/>
-    <div
-      :class="{
-        'ml-60': isSidebarExpanded,
-        'ml-16': !isSidebarExpanded
-      }"
-      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
-    >
-    <!-- Header can be repositioned or removed as needed -->
-    <main class="flex-1 w-full max-w-7xl mx-auto py-4">
-      <div class="bg-white p-6 rounded shadow-md">
+  <Layout @sidebar-expanded="handleSidebarExpanded" />
+  <div
+    :class="{
+      'ml-60': isSidebarExpanded,
+      'ml-16': !isSidebarExpanded
+    }"
+    class="flex flex-col h-screen p-4 transition-all duration-300 bg-gray-100"
+  >
+  <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
+      <div class="bg-white p-6 rounded shadow-md flex-1">
         <div class="flex flex-wrap justify-between mb-4">
           <div class="flex flex-wrap items-center mb-2 sm:mb-0">
-            <input v-model="searchInput" class="mr-2 p-2 border rounded w-full sm:w-auto" placeholder="Search by ID"/>
-            <button @click="performSearch" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            <input
+              v-model="searchInput"
+              class="mr-2 p-2 border rounded w-full sm:w-auto"
+              placeholder="Search by ID"
+            />
+            <button
+              @click="performSearch"
+              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            >
               Search
             </button>
           </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto flex-1">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>

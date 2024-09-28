@@ -190,7 +190,7 @@ const handleSidebarExpanded = (expanded) => {
       }"
       class="flex-1 p-4 transition-all duration-300 bg-gray-100"
     >
-      <main class="flex-1 w-full max-w-7xl mx-auto py-4">
+    <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
         <div class="bg-white p-6 rounded shadow-md">
           <!-- Search bar and Add Program button -->
           <div class="mb-4 flex justify-between items-center">

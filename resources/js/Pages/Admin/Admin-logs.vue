@@ -68,7 +68,7 @@ const handleSidebarExpanded = (expanded) => {
       class="flex-1 p-4 transition-all duration-300 bg-gray-100"
     >
     <!-- Main content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto py-4"> <!-- Adjusted padding from 'py-6' to 'py-2' to remove top space -->
+    <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
       <div class="bg-white p-6 rounded-lg shadow-lg"> <!-- Reduced padding inside the content from 'p-6' to 'p-4' -->
         
         <!-- Date filter -->
