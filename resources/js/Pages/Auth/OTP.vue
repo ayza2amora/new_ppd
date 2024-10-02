@@ -35,39 +35,42 @@ const verifyOtp = () => {
     }
 
     form.post(route("otp.verify"), {
-    preserveState: true,
-    preserveScroll: true,
-    data: { otp: otpAsString.value }, // Send OTP as a string
-    onSuccess: (response) => {
-        // Log the response to check its structure
-        console.log(response);
+        preserveState: true,
+        preserveScroll: true,
+        data: { otp: otpAsString.value }, // Send OTP as a string
+        onSuccess: (response) => {
+            // Log the response to check its structure
+            console.log(response);
 
-        // Safely access the flash message and user role
-        const flashMessage = response?.props?.flash?.message || "OTP verification succeeded.";
-        const userRole = response?.props?.user?.role;
+            // Safely access the flash message and user role
+            const flashMessage = response?.props?.flash?.message || "OTP verification succeeded.";
+            const userRole = response?.props?.user?.role;
 
-        setNotificationMessage(flashMessage);
+            setNotificationMessage(flashMessage);
 
-        // Check if userRole exists before proceeding
-        if (userRole) {
-            if (userRole === 'admin') {
-                setTimeout(() => {
-                    router.visit(route("admin-dashboard")); // Redirect to admin dashboard
-                }, 1500);
+            // Check if userRole exists before proceeding
+            if (userRole !== undefined) { // Ensure userRole is defined
+                if (userRole === '1') { // Admin
+                    setTimeout(() => {
+                        router.visit(route("admin-dashboard")); // Redirect to admin dashboard
+                    }, 1500);
+                } else if (userRole === '0') { // Regular user
+                    setTimeout(() => {
+                        router.visit(route("client-reports")); // Redirect to client reports for regular users
+                    }, 1500);
+                } else {
+                    setErrorMessage("Invalid user role. Please try again.");
+                }
             } else {
-                setTimeout(() => {
-                    router.visit(route("client-reports")); // Redirect to client reports for regular users
-                }, 1500);
+                setErrorMessage("User role not found. Please try again.");
             }
-        } else {
-            setErrorMessage("User role not found. Please try again.");
-        }
-    },
-    onError: (errors) => {
-        setErrorMessage(errors.otp || "Invalid OTP. Please try again.");
-    },
-});
-}
+        },
+        onError: (errors) => {
+            setErrorMessage(errors.otp || "Invalid OTP. Please try again.");
+        },
+    });
+};
+
 const setErrorMessage = (message) => {
     errorMessage.value = message;  // This will trigger the modal to appear
     clearNotificationMessage();  // Clear any notification messages
@@ -267,8 +270,8 @@ onMounted(() => {
                     </button>
                 </div>
 
-                <!-- Submit and Cancel Button centered and side by side -->
-                <div class="flex gap-2 justify-center mt-3"> <!-- Reduced gap between buttons -->
+              
+                <div class="flex gap-2 justify-center mt-3">  
                     <button
                         type="submit"
                         class="w-1/2 bg-blue-400 text-black font-black py-1 rounded-full hover:bg-blue-900 hover:text-white transition duration-300 ease-in-out focus:outline-none text-lg"

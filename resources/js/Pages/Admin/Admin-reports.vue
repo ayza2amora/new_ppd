@@ -272,11 +272,10 @@ const applyFilter = () => {
         'ml-60': isSidebarExpanded,
         'ml-16': !isSidebarExpanded
       }"
-      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
-    >
-    <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
-      <!-- Search bar and download button -->
-      <h2 class="text-xl font-semibold mb-4 text-center"><strong>ALL PROGRAMS</strong></h2>
+      class="flex-1 min-h-screen p-4 transition-all duration-300 bg-gray-100" >
+
+      <div class="bg-white p-6 rounded shadow-md max-w-full mx-auto">
+  
       
       <div class="flex justify-between mb-2 space-x-4">
           <!-- Filter Section (Inline with Title) -->
@@ -343,36 +342,36 @@ const applyFilter = () => {
         <!-- Provinces Table -->
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
+            <thead class="bg-blue-100">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Served (Physical)</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance (Physical)</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocation</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance (Financial)</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Province</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Target</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Served</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Variance (Physical)</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Allocation</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Utilization</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Variance (Financial)</th>
               </tr>
             </thead>
 
             <tbody class="bg-white divide-y divide-gray-200">
               <template v-for="province in filteredProvinces" :key="province.psgc">
                 <tr>
-                  <td class="px-6 py-1 whitespace-nowrap">
+                  <td class="px-8 py-2 whitespace-nowrap">
                     <div @click="toggleProvince(province.psgc)" class="cursor-pointer">
                       <strong>{{ province.col_province }}</strong>
                     </div>
                   </td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ province.total_target }}</td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ province.total_physical }}</td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ calculatePercentageVariance(province.total_target, province.total_physical) }}</td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ province.total_allocation }}</td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ province.total_utilization }}</td>
-                  <td class="px-6 py-1 whitespace-nowrap">{{ calculatePercentageVariance(province.total_allocation, province.total_utilization) }}</td>
+                  <td class="px-8 py-2 whitespace-nowrap">{{ province.total_target }}</td> 
+          <td class="px-8 py-2 whitespace-nowrap">{{ province.total_physical }}</td> 
+          <td class="px-8 py-2 whitespace-nowrap">{{ calculatePercentageVariance(province.total_target, province.total_physical) }}</td> 
+          <td class="px-8 py-2 whitespace-nowrap">{{ province.total_allocation }}</td> 
+          <td class="px-8 py-2 whitespace-nowrap">{{ province.total_utilization }}</td> 
+          <td class="px-8 py-2 whitespace-nowrap">{{ calculatePercentageVariance(province.total_allocation, province.total_utilization) }}</td> 
                 </tr>
                 <!-- City/Municipality data below each province -->
                 <tr v-if="expandedProvince === province.psgc">
-                  <td colspan="7" class="px-6 py-4">
+                  <td colspan="7" class="px-8 py-4"> 
                     <div class="bg-gray-50 p-4 rounded-lg mb-4">
                       <div v-for="(district, districtKey) in province.districts" :key="districtKey">
                         <div v-if="districtKey && parseInt(districtKey)" class="font-bold mb-2">
@@ -392,13 +391,13 @@ const applyFilter = () => {
                           </thead>
                           <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="city in district.cities" :key="city.col_citymuni">
-                              <td class="px-6 py-1 whitespace-nowrap">{{ city.col_citymuni }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ city.total_target }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ city.total_physical }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ calculatePercentageVariance(city.total_target, city.total_physical) }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ city.total_allocation }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ city.total_utilization }}</td>
-                              <td class="px-6 py-1 whitespace-nowrap">{{ calculatePercentageVariance(city.total_allocation, city.total_utilization) }}</td>
+                              <td class="px-8 py-2 whitespace-nowrap">{{ city.col_citymuni }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ city.total_target }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ city.total_physical }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ calculatePercentageVariance(city.total_target, city.total_physical) }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ city.total_allocation }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ city.total_utilization }}</td>
+                      <td class="px-8 py-2 whitespace-nowrap">{{ calculatePercentageVariance(city.total_allocation, city.total_utilization) }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -416,21 +415,21 @@ const applyFilter = () => {
       <div v-else-if="activeView === 'programs'">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
+            <thead class="bg-blue-100">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Served (Physical)</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance (Physical)</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocation</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance (Financial)</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Program Name</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Target</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Served</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Variance (Physical)</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Allocation</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Utilization</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Variance (Financial)</th>
               </tr>
             </thead>
 
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="program in filteredPrograms" :key="program.id">
-                <td class="px-6 py-1 whitespace-nowrap flex items-center">
+                <td class="px-8 py-2 whitespace-nowrap flex items-center">
                 <img
                 v-if="program.program_logo"
                 :src="program.program_logo"
@@ -440,19 +439,19 @@ const applyFilter = () => {
                 <strong>{{ program.program_name }}</strong>
                 </td>
 
-                <td class="px-4 py-1 whitespace-nowrap">{{ program.total_target }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{ program.total_physical }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{calculatePercentageVariance(program.total_target, program.total_physical) }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{ program.total_allocation }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{ program.total_utilization }}</td>
-                <td class="px-4 py-1 whitespace-nowrap">{{calculatePercentageVariance(program.total_allocation, program.total_utilization) }}</td>
+                <td class="px-8 py-2 whitespace-nowrap">{{ program.total_target }}</td> <!-- Increased padding -->
+          <td class="px-8 py-2 whitespace-nowrap">{{ program.total_physical }}</td> <!-- Increased padding -->
+          <td class="px-8 py-2 whitespace-nowrap">{{calculatePercentageVariance(program.total_target, program.total_physical) }}</td>
+          <td class="px-8 py-2 whitespace-nowrap">{{ program.total_allocation }}</td> <!-- Increased padding -->
+          <td class="px-8 py-2 whitespace-nowrap">{{ program.total_utilization }}</td> <!-- Increased padding -->
+          <td class="px-8 py-2 whitespace-nowrap">{{calculatePercentageVariance(program.total_allocation, program.total_utilization) }}</td> 
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
-    </main>
+        
+    </div>
   </div>
 </template>
 

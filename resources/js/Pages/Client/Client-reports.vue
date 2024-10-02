@@ -276,6 +276,36 @@ const handleSidebarExpanded = (expanded) => {
   background-color: #0056b3; /* Darker on hover */
 }
 
+.arrow-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;  /* Reduced width */
+  height: 30px; /* Reduced height */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 0px;  /* Rounded corners */
+  background-color: #fff; /* White background */
+  font-size: 1rem; /* Smaller font size */
+  padding: 0.25rem;  /* Reduced padding */
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.arrow-box:hover {
+  background-color: #f1f1f1; /* Slight background color change on hover */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.arrow-box:disabled {
+  background-color: #f9f9f9; /* Lighter background when disabled */
+  color: #ccc;  /* Gray out the arrow */
+  cursor: not-allowed;
+}
+
+.arrow-box span {
+  font-size: 1rem;  /* Adjusted font size to match button size */
+  color: #333; /* Arrow color */
+}
 </style>
 
 <template>
@@ -285,8 +315,8 @@ const handleSidebarExpanded = (expanded) => {
         'ml-60': isSidebarExpanded,
         'ml-16': !isSidebarExpanded
       }"
-      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
-    >
+      class="flex-1 min-h-screen p-4 transition-all duration-300 bg-gray-100"
+      >
     <!-- Main white container -->
     <div class="bg-white p-4 rounded shadow-md">
       
@@ -342,29 +372,39 @@ const handleSidebarExpanded = (expanded) => {
         <h2 class="text-lg font-semibold mb-2">Allocation Reports</h2>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Allocated</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="allocation in paginatedAllocations" :key="allocation.id">
-                <td class="border px-4 py-1">{{ allocation.province.col_province }}</td>
-                <td class="border px-4 py-1">{{ allocation.citymuni.col_citymuni }}</td>
-                <td class="border px-4 py-1">{{ allocation.target }}</td>
-                <td class="border px-4 py-1">₱ {{ allocation.fund_allocation }}</td>
-                <td class="px-6 py-1">
+  <thead class="bg-blue-100">
+    <tr>
+      <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th> <!-- New Date Created Column -->
+      <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Province</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">City/Municipality</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Target/Physical</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fund Allocated</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white divide-y divide-gray-200">
+    <tr v-for="allocation in paginatedAllocations" :key="allocation.id">
+      <td class="border px-4 py-1">{{ new Date(allocation.created_at).toLocaleDateString() }}</td> <!-- New Date Column -->
+      <td class="border px-4 py-1">{{ allocation.province.col_province }}</td>
+      <td class="border px-4 py-1">{{ allocation.citymuni?.col_citymuni }}</td>
+      <td class="border px-4 py-1">{{ allocation.target }}</td>
+      <td class="border px-4 py-1">₱ {{ allocation.fund_allocation }}</td>
+       <td class="border px-6 py-1">
                   <div v-if="programStatus === 0" @click="editItem(allocation)" class="cursor-pointer flex justify-center items-center">
                     <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z"/>
-                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-                      <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-                      <line x1="16" y1="5" x2="19" y2="8"/>
-                    </svg>
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+            <line x1="16" y1="5" x2="19" y2="8"/>
+          </svg>
+        </div>
+        <div v-else class="cursor-pointer flex justify-center items-center">
+          <svg class="h-6 w-6 text-red-600" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <rect x="5" y="11" width="14" height="10" rx="2"/>
+            <circle cx="12" cy="16" r="1"/>
+            <path d="M8 11v-5a4 4 0 0 1 8 0"/>
+          </svg>
                   </div>
 
                 </td>
@@ -373,14 +413,19 @@ const handleSidebarExpanded = (expanded) => {
           </table>
         </div>
         <!-- Pagination Controls for Allocations -->
-        <div class="flex justify-center space-x-2 items-center mt-4">
-          <button @click="prevAllocationPage" :disabled="currentAllocationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
-            &larr; Previous
-          </button>
-          <button @click="nextAllocationPage" :disabled="currentAllocationPage === totalAllocationPages" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
-            Next &rarr;
-          </button>
-        </div>
+<div class="flex justify-center space-x-4 items-center mt-4">
+  <button @click="prevAllocationPage" :disabled="currentAllocationPage === 1" class="arrow-box" aria-label="Previous">
+    <span>&lt;</span> <!-- Replace with < symbol -->
+  </button>
+
+  <span class="text-gray-600 font-medium text-center"> 
+    {{ currentAllocationPage }} of {{ totalAllocationPages }}
+  </span>
+
+  <button @click="nextAllocationPage" :disabled="currentAllocationPage === totalAllocationPages" class="arrow-box" aria-label="Next">
+    <span>&gt;</span> <!-- Replace with > symbol -->
+  </button>
+</div>
       </div>
 
       <!-- Utilizations Table -->
@@ -388,44 +433,59 @@ const handleSidebarExpanded = (expanded) => {
         <h2 class="text-lg font-semibold mb-2">Utilization Reports</h2>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-blue-100">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City/Municipality</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target/Physical</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fund Utilized</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th> <!-- New Date Created Column -->
+                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Province</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">City/Municipality</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Target/Physical</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fund Utilized</th>
+    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="utilization in paginatedUtilizations" :key="utilization.id">
+                <td class="border px-4 py-1">{{ new Date(utilization.created_at).toLocaleDateString() }}</td> <!-- New Date Column -->
                 <td class="border px-4 py-1">{{ utilization.province.col_province }}</td>
                 <td class="border px-4 py-1">{{ utilization.citymuni?.col_citymuni }}</td>
                 <td class="border px-4 py-1">{{ utilization.physical }}</td>
                 <td class="border px-4 py-1">₱ {{ utilization.fund_utilized }}</td>
-                <td class="px-6 py-1">
+                <td class="border px-6 py-1">
                   <div v-if="programStatus === 0" @click="editItem(utilization)" class="cursor-pointer flex justify-center items-center">
                     <svg class="h-6 w-6 text-stone-900" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z"/>
-                      <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-                      <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-                      <line x1="16" y1="5" x2="19" y2="8"/>
-                    </svg>
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+            <line x1="16" y1="5" x2="19" y2="8"/>
+          </svg>
+        </div>
+        <div v-else class="cursor-pointer flex justify-center items-center">
+          <svg class="h-6 w-6 text-red-600" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <rect x="5" y="11" width="14" height="10" rx="2"/>
+            <circle cx="12" cy="16" r="1"/>
+            <path d="M8 11v-5a4 4 0 0 1 8 0"/>
+          </svg>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <!-- Pagination Controls for Utilizations -->
-        <div class="flex justify-center space-x-2 items-center mt-4">
-          <button @click="prevUtilizationPage" :disabled="currentUtilizationPage === 1" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-l">
-            &larr; Previous
-          </button>
-          <button @click="nextUtilizationPage" :disabled="currentUtilizationPage === totalUtilizationPages" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-sm py-1 px-2 rounded-r">
-            Next &rarr;
-          </button>
-        </div>
+       <!-- Pagination Controls for Utilizations -->
+<div class="flex justify-center space-x-4 items-center mt-4">
+  <button @click="prevUtilizationPage" :disabled="currentUtilizationPage === 1" class="arrow-box" aria-label="Previous">
+    <span>&lt;</span> <!-- Replace with < symbol -->
+  </button>
+
+  <span class="text-gray-600 font-medium text-center"> 
+    {{ currentUtilizationPage }} of {{ totalUtilizationPages }}
+  </span>
+
+  <button @click="nextUtilizationPage" :disabled="currentUtilizationPage === totalUtilizationPages" class="arrow-box" aria-label="Next">
+    <span>&gt;</span> <!-- Replace with > symbol -->
+  </button>
+</div>
       </div>
 
     </div> <!-- End of white container -->

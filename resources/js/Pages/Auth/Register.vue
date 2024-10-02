@@ -1,28 +1,64 @@
 <script setup>
-import { useForm,usePage  } from '@inertiajs/vue3'
-import { ref, onMounted } from 'vue'
+import { useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const form = useForm({
   first_name: '',
   middle_name: '',
   last_name: '',
   suffix: '',
-  role: '', 
+  role: '',
   email: '',
   employeeid: '',
   program: '',
   password: '',
   password_confirmation: '',
   approved: '',
-})
-const { props } = usePage()
-const programs = ref(props.programs)
+});
+
+const { props } = usePage();
+const programs = ref(props.programs);
+
+const validatePassword = () => {
+  const password = form.password;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+  if (!passwordRegex.test(password)) {
+    form.errors.password = 'Password must be at least 8 characters long, with at least one uppercase letter, one lowercase letter, one number, and one special character.';
+    return false;
+  } else {
+    form.errors.password = '';
+    return true;
+  }
+};
+
+const validateEmployeeId = () => {
+  const id = form.employeeid;
+  
+  // Validate that there is only one dash and not consecutive dashes
+  const hasDoubleDash = /--/.test(id);
+  const hasMoreThanOneDash = (id.match(/-/g) || []).length > 1;
+
+  if (hasDoubleDash || hasMoreThanOneDash) {
+    form.errors.employeeid = "ID Number must contain only one dash and no consecutive dashes.";
+    return false;
+  } else {
+    form.errors.employeeid = "";
+    return true;
+  }
+};
 
 const submit = () => {
-  form.post('/register', {
-    onError: () => form.reset('password', 'password_confirmation'),
-  });
-}
+  // Perform validation for password and employee ID
+  const isPasswordValid = validatePassword();
+  const isEmployeeIdValid = validateEmployeeId();
+
+  if (isPasswordValid && isEmployeeIdValid) {
+    form.post('/register', {
+      onError: () => form.reset('password', 'password_confirmation'),
+    });
+  }
+};
 
 const imageName = 'dswd-logo-transparent.png';
 </script>
@@ -75,9 +111,7 @@ const imageName = 'dswd-logo-transparent.png';
               class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
               placeholder="e.g. III"
               pattern="[A-Za-z]{1,5}\.?([A-Za-z\s\-]{1,5})?">
-            <div v-if="form.errors.suffix" 
-            class="text-red-500 text-xs">{{ form.errors.suffix }}
-          </div>
+            <div v-if="form.errors.suffix" class="text-red-500 text-xs">{{ form.errors.suffix }}</div>
           </div>
         </div>
 
@@ -86,14 +120,14 @@ const imageName = 'dswd-logo-transparent.png';
           <select v-model="form.role" id="role" name="role"
           class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" required>
               <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="0">User</option>
+              <option value="1">Admin</option>
            </select>
           <div v-if="form.errors.role" class="text-red-500 text-xs">{{ form.errors.role }}</div>
         </div>
 
         <!-- Program Selection, Hidden if Role is Admin -->
-      <div v-if="form.role !== 'admin'">
+        <div v-if="form.role !== 'admin'">
           <label class="block text-sm font-bold mb-1">Program</label>
            <select v-model="form.program" id="program" name="program"
            class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm" required>
@@ -101,9 +135,7 @@ const imageName = 'dswd-logo-transparent.png';
             <option v-for="program in programs" :key="program.id" :value="program.name">{{ program.name }}</option>
            </select>
          <div v-if="form.errors.program" class="text-red-500 text-xs">{{ form.errors.program }}</div>
-    </div>
-
-
+        </div>
 
         <div>
           <label class="block text-sm font-bold mb-1">Email</label>
@@ -118,9 +150,10 @@ const imageName = 'dswd-logo-transparent.png';
 
         <div>
           <label class="block text-sm font-bold mb-1">ID No.</label>
-          <input name="employeeid" v-model="form.employeeid" type="text" 
+          <input name="employeeid" v-model="form.employeeid" type="text"
             class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
             placeholder="ID Number"
+            @input="validateEmployeeId"
             pattern="[0-9\-]+">
           <div v-if="form.errors.employeeid" class="text-red-500 text-xs">{{ form.errors.employeeid }}</div>
         </div>
@@ -128,10 +161,11 @@ const imageName = 'dswd-logo-transparent.png';
         <div>
           <label class="block text-sm font-bold mb-1">Password</label>
           <input name="password" v-model="form.password" type="password" 
-            class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-            placeholder="Password">
+          class="shadow appearance-none border rounded w-full py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+          placeholder="Password"
+          @blur="validatePassword">
           <div v-if="form.errors.password" class="text-red-500 text-xs">{{ form.errors.password }}</div>
-        </div>   
+        </div>
 
         <div>
           <label class="block text-sm font-bold mb-1">Re-type Password</label>

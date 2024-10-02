@@ -25,10 +25,12 @@ class CLogController extends Controller
                 // Fetch city/municipality and province from utilization, then fall back to allocation
                 if ($log->type === 'allocation') {
                     $provinceName = $this->getProvinceName($log->allocation->province);
-                    $cityMunicipalityName = $this->getCityMunicipalityName($log->allocation->city_municipality);
+                $cityMunicipalityName = $this->getCityMunicipalityName($log->allocation->city_municipality);
+                $programName = $this->getProgramName($log->allocation->program); // Fetch program name from allocation
                 } else {
                     $provinceName = $this->getProvinceName($log->utilization->province);
                     $cityMunicipalityName = $this->getCityMunicipalityName($log->utilization->city_municipality);
+                    $programName = $this->getProgramName($log->utilization->program); // Fetch program name from utilization
                 }
 
                 // Logging the fetched data for debugging
@@ -52,6 +54,7 @@ class CLogController extends Controller
                     'province' => $provinceName,
                     'city_municipality' => $cityMunicipalityName,
                     'description' => $cityMunicipalityName . ', ' . $provinceName,
+                    'program' => $programName, // Add program name to the logs
                 ];
             });
 
@@ -113,4 +116,15 @@ class CLogController extends Controller
         $cityMuni = CityMuni::find($cityMuniPsgc);
         return $cityMuni ? $cityMuni->col_citymuni : 'Unknown City/Municipality'; // Adjust 'col_citymuni' to match the column in your table
     }
+
+    private function getProgramName($programId)
+{
+    if (!$programId) {
+        return 'N/A';
+    }
+
+    // Fetch the program name from the programs table by ID
+    $program = \App\Models\Program::find($programId); // Assuming the Program model exists
+    return $program ? $program->name : 'Unknown Program'; // Return the program name or 'Unknown Program'
+}
 }

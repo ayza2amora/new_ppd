@@ -33,20 +33,13 @@ class AuthController extends Controller
             'middle_name' => ['nullable', 'max:20'],
             'last_name' => ['required', 'max:20'],
             'suffix' => ['nullable', 'max:10'],
-            'role' => 'required|string|in:user,admin',
+            'role' => 'required|integer|in:0,1',
             'email' => ['required', 'email', 'max:50', 'unique:users'],
             'employeeid' => ['required', 'max:8', 'unique:users'],
             'password' => ['required', 'confirmed', 'min:8'],
-            'program' => $request->role === 'user' ? ['nullable', 'max:100'] : ['nullable', 'max:100'],
+            'program' => $request->role === '0' ? ['nullable', 'max:100'] : ['nullable', 'max:100'],
         ]);
-    
-        $existingUser = User::where('first_name', $fields['first_name'])
-            ->where('last_name', $fields['last_name'])
-            ->first();
-    
-        if ($existingUser) {
-            return back()->withErrors(['first_name' => 'A user with the same first and last name already exists.'])->withInput();
-        }
+
     
         // Find the program ID based on the program name
         $program = \App\Models\Program::where('name', $fields['program'])->first();
@@ -61,7 +54,7 @@ class AuthController extends Controller
             'email' => $fields['email'],
             'employeeid' => $fields['employeeid'],
             'password' => bcrypt($fields['password']),
-            'program' => $fields['role'] === 'user' ? $program_id : null, // Store the program ID
+            'program' => $fields['role'] === '0' ? $program_id : null, // Store the program ID
         ]);
     
         return redirect()->route('login')->with('success', 'Account created successfully. Please wait for Admin approval.');
@@ -126,6 +119,7 @@ class AuthController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return redirect()->route('login');
     }
 
@@ -220,9 +214,10 @@ public function updateRole(Request $request, $id)
         $newRole = $request->input('role');
 
         // Update the user's role
-        $user->role = $newRole;
-        $user->save();
-
+        if (in_array($newRole, [0, 1])) {
+            $user->role = $newRole;
+            $user->save();
+        }
         // Log role change with the user's full name
         $userFullName = $user->first_name . ' ' . $user->last_name;
 

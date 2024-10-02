@@ -104,9 +104,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 //Route for Approve and Decline Registered Accounts
+// Route for Approve and Decline Registered Accounts
 Route::post('/users/{user}/approve', [ApproveUserController::class, 'approve'])
     ->name('users.approve')
     ->middleware(['auth']);
+
+Route::post('/users/{user}/decline', [ApproveUserController::class, 'decline'])
+    ->name('users.decline') // Updated route name to 'users.decline'
+    ->middleware(['auth']);
+
 Route::post('/users/{user}/pending', [ApproveUserController::class, 'pending'])->name('users.pending');
 
 
@@ -151,9 +157,3 @@ Route::get('/utilizations', [ReportsController::class, 'getUtilizations']);
 
 Route::get('/programs/{id}', [ProgramController::class, 'show']);
 
-use App\Http\Controllers\ProgramReportController;
-
-Route::get('/admin/program-reports', [ProgramReportController::class, 'index'])->name('program.reports');
-
-
-Route::get('/utilization-summary/{programId}/{provinceCode}', [ReportsController::class, 'getUtilizationSummary']);

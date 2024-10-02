@@ -316,43 +316,36 @@ const handleSidebarExpanded = (expanded) => {
 </script>
 
 <template>
-  <Layout @sidebar-expanded="handleSidebarExpanded" />
-  <div
-    :class="{
-      'ml-60': isSidebarExpanded,
-      'ml-16': !isSidebarExpanded
-    }"
-    class="flex flex-col h-screen p-4 transition-all duration-300 bg-gray-100"
-  >
-  <main class="flex-1 w-full max-w-7xl mx-auto py-2 px-2 bg-white ">
-      <div class="bg-white p-6 rounded shadow-md flex-1">
+  <Layout @sidebar-expanded="handleSidebarExpanded"/>
+    <div
+      :class="{
+        'ml-60': isSidebarExpanded,
+        'ml-16': !isSidebarExpanded
+      }"
+      class="flex-1 min-h-screen p-4 transition-all duration-300 bg-gray-100" >
+
+      <div class="bg-white p-6 rounded shadow-md max-w-full mx-auto">
+    <!-- Header can be repositioned or removed as needed -->
         <div class="flex flex-wrap justify-between mb-4">
           <div class="flex flex-wrap items-center mb-2 sm:mb-0">
-            <input
-              v-model="searchInput"
-              class="mr-2 p-2 border rounded w-full sm:w-auto"
-              placeholder="Search by ID"
-            />
-            <button
-              @click="performSearch"
-              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            >
+            <input v-model="searchInput" class="mr-2 p-2 border rounded w-full sm:w-auto" placeholder="Search by ID"/>
+            <button @click="performSearch" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
               Search
             </button>
           </div>
         </div>
 
-        <div class="overflow-x-auto flex-1">
+        <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-blue-100">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th class="px-10 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
-                <th class="px-10 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UserType</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Employee ID</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Name</th>
+              <th class="px-10 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Program</th>
+              <th class="px-10 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">UserType</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="user in paginatedUsers" :key="user.id">
@@ -379,8 +372,8 @@ const handleSidebarExpanded = (expanded) => {
                     @change="confirmUserRoleChange(user.id, $event.target.value)" 
                     class="block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option value="0">User</option>
+                    <option value="1">Admin</option>
                   </select>
                 </td>
                 <td class="px-6 py-2 whitespace-nowrap">
@@ -400,27 +393,33 @@ const handleSidebarExpanded = (expanded) => {
             </tbody>
           </table>
         </div>
+     
 
-        <!-- Pagination Controls -->
-        <div class="mt-4 flex justify-between items-center">
-          <button
-            @click="prevPage"
-            :disabled="currentPage === 1"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
-          >
-            &larr; Previous
-          </button>
-          
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50"
-          >
-            Next &rarr;
-          </button>
-        </div>
+       <!-- Pagination Controls -->
+<div class="mt-4 flex justify-center space-x-4 items-center">
+  <button
+    @click="prevPage"
+    :disabled="currentPage === 1"
+    class="arrow-box"
+    aria-label="Previous"
+  >
+    <span>&lt;</span> <!-- Replaced with '<' -->
+  </button>
+
+  <span class="text-gray-600 font-medium text-center">
+    {{ currentPage }} of {{ totalPages }}
+  </span>
+
+  <button
+    @click="nextPage"
+    :disabled="currentPage === totalPages"
+    class="arrow-box"
+    aria-label="Next"
+  >
+    <span>&gt;</span> <!-- Replaced with '>' -->
+  </button>
+</div>
       </div>
-    </main>
   </div>
 
   <!-- Modal -->
@@ -449,3 +448,37 @@ const handleSidebarExpanded = (expanded) => {
     </div>
   </div>
 </template>
+
+<style>
+.arrow-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;  /* Adjust width */
+  height: 30px; /* Adjust height */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 0px;  /* Rounded corners */
+  background-color: #fff; /* White background */
+  font-size: 1rem; /* Smaller font size */
+  padding: 0.25rem;  /* Reduced padding */
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.arrow-box:hover {
+  background-color: #f1f1f1; /* Slight background color change on hover */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.arrow-box:disabled {
+  background-color: #f9f9f9; /* Lighter background when disabled */
+  color: #ccc;  /* Gray out the arrow */
+  cursor: not-allowed;
+}
+
+.arrow-box span {
+  font-size: 1rem;  /* Adjusted font size to match button size */
+  color: #333; /* Arrow color */
+}
+
+</style>

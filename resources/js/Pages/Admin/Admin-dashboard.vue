@@ -22,7 +22,7 @@ const selectedYear = ref(props.selectedYear || new Date().getFullYear());
 const selectedQuarter = ref(props.selectedQuarter || Math.ceil((new Date().getMonth() + 1) / 3));
 
 // Define options for year and quarter
-const years = [2022, 2023, 2024]; // Add as needed
+const years = [2022, 2023, 2024];  // Add as needed
 const quarters = [1, 2, 3, 4];
 
 // Function to reload the page with selected year and quarter
@@ -76,56 +76,62 @@ const handleSidebarExpanded = (expanded) => {
         'ml-60': isSidebarExpanded,
         'ml-16': !isSidebarExpanded,
       }"
-      class="flex-1 p-2 transition-all duration-300 bg-gray-100"
+      class="flex-1 p-4 transition-all duration-300 bg-gray-100"
+      
     >
-      <!-- Header and Filter Section inside a single flex container -->
-      <header class="bg-white shadow-sm w-full max-w-7xl mx-auto mb-2">
-        <div class="py-2 px-2 sm:px-4 lg:px-2">
-          <div class="flex justify-between items-center">
-            <!-- Filter Section (Inline with Title) -->
-            <div class="flex items-center space-x-2">
-              <select v-model="selectedYear" class="p-1 border rounded">
-                <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
-              </select>
-              <select v-model="selectedQuarter" class="p-1 border rounded">
-                <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
-              </select>
-              <button
-                @click="applyFilter"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded"
-              >
-                Apply Filter
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
 
-      <!-- Summary cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2 w-full max-w-7xl mx-auto">
-        <div class="bg-white p-2 rounded shadow text-center">
-          <h3 class="text-gray-500 text-sm">Total Allocation</h3>
-          <p class="text-xl font-bold">{{ formatNumber(totalAllocation) }}</p>
-        </div>
-        <div class="bg-white p-2 rounded shadow text-center">
-          <h3 class="text-gray-500 text-sm">Total Utilized</h3>
-          <p class="text-xl font-bold">{{ formatNumber(totalUtilization) }}</p>
-        </div>
-        <div class="bg-white p-2 rounded shadow text-center">
-          <h3 class="text-gray-500 text-sm">Total Target</h3>
-          <p class="text-xl font-bold">{{ formatNumber(totalTarget) }}</p>
-        </div>
-        <div class="bg-white p-2 rounded shadow text-center">
-          <h3 class="text-gray-500 text-sm">Total Served</h3>
-          <p class="text-xl font-bold">{{ formatNumber(totalServed) }}</p>
-        </div>
+    <header class="bg-white shadow-sm w-full mb-4"> <!-- Main header container -->
+  <div class="bg-white p-2 rounded shadow-md max-w-full mx-auto">
+    <!-- Flex container to align the filter items to the top-left -->
+    <div class="flex justify-start items-start w-full"> <!-- justify-start for left alignment and items-start for top alignment -->
+      <!-- Filter Section -->
+      <div class="flex items-center space-x-2"> <!-- Reduced space between elements -->
+        <select v-model="selectedYear" class="p-2 border rounded">
+          <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
+        </select>
+        <select v-model="selectedQuarter" class="p-2 border rounded">
+          <option v-for="quarter in quarters" :value="quarter" :key="quarter">Quarter {{ quarter }}</option>
+        </select>
+        <button
+          @click="applyFilter"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Apply Filter
+        </button>
       </div>
+    </div>
+  </div>
+</header>
 
-      <!-- The chart container with fixed width and height, and overflow handling -->
-<div class="bg-white p-4 px-10 rounded shadow mb-2 w-full max-w-7xl mx-auto">
+   <!-- Summary cards -->
+   <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 w-full">
+  <div class="bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow duration-300 ease-in-out">
+    <h3 class="text-gray-500">Total Allocation</h3>
+    <p class="text-2xl font-bold">{{ formatNumber(totalAllocation) }}</p> <!-- Old font design (text-2xl font-bold) -->
+  </div>
+  
+  <div class="bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow duration-300 ease-in-out">
+    <h3 class="text-gray-500">Total Utilized</h3>
+    <p class="text-2xl font-bold">{{ formatNumber(totalUtilization) }}</p> <!-- Old font design (text-2xl font-bold) -->
+  </div>
+  
+  <div class="bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow duration-300 ease-in-out">
+    <h3 class="text-gray-500">Total Target</h3>
+    <p class="text-2xl font-bold">{{ formatNumber(totalTarget) }}</p> <!-- Old font design (text-2xl font-bold) -->
+  </div>
+  
+  <div class="bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow duration-300 ease-in-out">
+    <h3 class="text-gray-500">Total Served</h3>
+    <p class="text-2xl font-bold">{{ formatNumber(totalServed) }}</p> <!-- Old font design (text-2xl font-bold) -->
+  </div>
+</div>
+
+
+        <!-- The chart container with fixed width and height, and overflow handling -->
+<div class="bg-white p-2 px-10 rounded shadow mb-4 w-full max-w-7xl mx-auto">
   <h3 class="text-center text-lg font-bold mb-2">Fund Distribution Over Time</h3>
   <!-- Set a max height and width for the chart, and hide any overflow -->
-  <div class="w-full h-60 max-h-60 overflow-hidden">
+  <div class="w-full h-60 max-h-60 overflow-x-auto">
     <ReportsChart
       :allocations="allocations"
       :utilizations="utilizations"
@@ -134,15 +140,16 @@ const handleSidebarExpanded = (expanded) => {
     />
   </div>
 </div>
-<!-- Side by side layout for tables -->
-<div class="flex flex-col md:flex-row gap-2 mb-2 w-full max-w-7xl mx-auto">
-  <!-- Fund Allocation Distribution for Programs -->
-  <div class="bg-white p-2 rounded shadow flex-1 overflow-auto">
-    <h3 class="text-center text-sm font-bold mb-2">Fund Distribution by Program</h3>
+
+      <!-- Side by side layout for tables -->
+      <div class="flex flex-col md:flex-row gap-4 w-full">
+        <!-- Fund Allocation Distribution for Programs -->
+        <div class="bg-white p-4 rounded shadow flex-1 overflow-x-auto">
+    <h3 class="text-center text-sm font-bold mb-2">Fund Allocation Distribution by Program</h3>
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
+              <thead class="bg-blue-100">
+                <tr>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
             <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
           </tr>
@@ -157,13 +164,12 @@ const handleSidebarExpanded = (expanded) => {
     </div>
   </div>
 
-  <!-- Fund Allocation Distribution and Provinces Table -->
   <div class="bg-white p-2 rounded shadow flex-1 overflow-auto">
-    <h3 class="text-center text-sm font-bold mb-2">Fund Distribution by Province</h3>
+    <h3 class="text-center text-sm font-bold mb-2">Fund Allocation and Utilization per Province</h3>
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
+              <thead class="bg-blue-100">
+                <tr>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
             <th class="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
           </tr>
@@ -178,7 +184,7 @@ const handleSidebarExpanded = (expanded) => {
     </div>
   </div>
 </div>
-
     </div>
   </div>
 </template>
+

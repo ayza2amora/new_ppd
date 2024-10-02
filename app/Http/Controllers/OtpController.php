@@ -23,7 +23,7 @@ class OtpController extends Controller
         Log::info('OTP send method called');
         
         $user = Auth::user();
-    
+
         // Check if OTP was recently sent by checking both the session and the database
         if (!$this->hasRecentOtp($user)) {
             try {
@@ -152,12 +152,12 @@ class OtpController extends Controller
     private function redirectToDashboard($user)
     {
         if ($user instanceof User) {
-            if ($user->role === 'user') {
+            if ($user->role === '0') { // Change here: 0 for 'user'
                 return redirect()->intended(route('client-reports'))
                     ->with('message', 'OTP verified successfully')
                     ->with('redirectTo', route('client-reports'));
             }
-            if ($user->role === 'admin') {
+            if ($user->role === '1') { // Change here: 1 for 'admin'
                 return redirect()->intended(route('admin-dashboard'))
                     ->with('message', 'OTP verified successfully')
                     ->with('redirectTo', route('admin-dashboard'));

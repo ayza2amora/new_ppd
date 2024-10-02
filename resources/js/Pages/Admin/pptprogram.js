@@ -218,76 +218,89 @@ export const generateProgramPpt = (provinces, programs) => {
       });
      });
 
- // Overview Slide for Allocations
-const allocationOverviewSlide = pptx.addSlide();
-allocationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
+   // Allocation Overview Slide
+   const allocationOverviewSlide = pptx.addSlide();
+   allocationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
+ 
+   // Update title to 'SUMMARY PER PROGRAM'
+   allocationOverviewSlide.addText('SUMMARY PER PROGRAM', {
+     x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+   });
+ 
+   // Table Header for Allocation Overview Slide
+   const allocationOverviewHeader = [
+     { text: 'Program', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+     { text: 'Physical Target', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+     { text: 'Fund Allocated (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+   ];
+ 
+   // Allocations Overview Rows (Apply alternating row colors and format)
+   const allocationOverviewRows = Object.keys(programAllocations).map((programName, index) => {
+     const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
+     return [
+       { text: programName, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+       { text: programTargets[programName].toString(), options: { fontSize: 10, align: 'center', fontFace: 'Arial', fill: fillColor } },
+       { text: programAllocations[programName].toLocaleString(), options: { fontSize: 10, align: 'center', fontFace: 'Arial', fill: fillColor } }
+     ];
+   });
+ 
+   // Add total row
+   const totalTarget = Object.values(programTargets).reduce((sum, value) => sum + value, 0);
+   const totalAllocated = Object.values(programAllocations).reduce((sum, value) => sum + value, 0);
+   const totalRow = [
+     { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } },
+     { text: totalTarget.toString(), options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } },
+     { text: totalAllocated.toLocaleString(), options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } }
+   ];
+ 
+   // Add table to Allocation Overview Slide
+   allocationOverviewSlide.addTable([allocationOverviewHeader, ...allocationOverviewRows, totalRow], {
+    x: 1.0, y: 1.0, w: 8, h: 3.5, colW: [2.5, 2, 2], border: { pt: 0.5, color: 'FFFFFF' }, fontSize: 12, fontFace: 'Arial'
+  });
+ 
+   // Utilization Overview Slide
+   const utilizationOverviewSlide = pptx.addSlide();
+   utilizationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
+ 
+   // Update title to 'SUMMARY PER PROGRAM'
+   utilizationOverviewSlide.addText('SUMMARY PER PROGRAM', {
+     x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '000991', fontFace: 'Arial', align: 'center'
+   });
+ 
+   // Table Header for Utilization Overview Slide
+   const utilizationOverviewHeader = [
+     { text: 'Program', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+     { text: 'Physical Served', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } },
+     { text: 'Fund Utilized (Php)', options: { bold: true, fontSize: 12, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial' } }
+   ];
+ 
+   // Utilization Overview Rows (Apply alternating row colors and format)
+   const utilizationOverviewRows = Object.keys(programUtilizations).map((programName, index) => {
+     const fillColor = index % 2 === 0 ? 'BDE0FE' : 'DDEFFA';
+     return [
+       { text: programName, options: { fontSize: 10, align: 'left', fontFace: 'Arial', fill: fillColor } },
+       { text: programServed[programName].toString(), options: { fontSize: 10, align: 'center', fontFace: 'Arial', fill: fillColor } },
+       { text: programUtilizations[programName].toLocaleString(), options: { fontSize: 10, align: 'center', fontFace: 'Arial', fill: fillColor } }
+     ];
+   });
+ 
+   // Add total row
+   const totalServed = Object.values(programServed).reduce((sum, value) => sum + value, 0);
+   const totalUtilized = Object.values(programUtilizations).reduce((sum, value) => sum + value, 0);
+   const totalUtilizationRow = [
+     { text: 'TOTAL', options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } },
+     { text: totalServed.toString(), options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } },
+     { text: totalUtilized.toLocaleString(), options: { bold: true, fontSize: 10, align: 'center', fontFace: 'Arial', fill: 'FFD700' } }
+   ];
+ 
+   // Add table to Utilization Overview Slide
+   utilizationOverviewSlide.addTable([utilizationOverviewHeader, ...utilizationOverviewRows, totalUtilizationRow], {
+    x: 1.0, y: 1.0, w: 8, h: 3.5, colW: [2.5, 2, 2], border: { pt: 0.5, color: 'FFFFFF' }, fontSize: 12, fontFace: 'Arial'
+  });
 
-// Overview Title
-allocationOverviewSlide.addText('ALLOCATIONS OVERVIEW', { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '00072D', fontFace: 'Arial', align: 'center' });
-
-// Allocations Table Header (Removed LOGO column)
-const allocationOverviewHeader = [
-  [
-    { text: 'PROGRAM', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-    { text: 'TARGET', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-    { text: 'ALLOCATED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } }
-  ]
-];
-
-// Allocations Overview Rows (Removed logo placeholder)
-const allocationOverviewRows = Object.keys(programAllocations).map(programName => {
-  const program = programs.find(p => p.program_name === programName);
-  
-  return [
-    {
-      text: programName, // Program name text
-      options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: 'FFFFFF' }
-    },
-    { text: programTargets[programName].toString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial' } },
-    { text: programAllocations[programName].toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial' } }
-  ];
-});
-
-// Add table to slide
-const allocationTable = allocationOverviewSlide.addTable([...allocationOverviewHeader, ...allocationOverviewRows], {
-  x: 0.5, y: 1.5, w: 9, fontSize: 10, border: { pt: 1, color: '000000' }
-});
-
-// Similar adjustments for Utilization Overview
-const utilizationOverviewSlide = pptx.addSlide();
-utilizationOverviewSlide.background = { path: `${window.location.origin}/ppd-images/ppt-table.png` };
-
-// Overview Title
-utilizationOverviewSlide.addText('UTILIZATIONS OVERVIEW', { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '00072D', fontFace: 'Arial', align: 'center' });
-
-// Utilization Table Header (Removed LOGO column)
-const utilizationOverviewHeader = [
-  [
-    { text: 'PROGRAM', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-    { text: 'UTILIZED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } },
-    { text: 'SERVED', options: { bold: true, fontSize: 10, align: 'center', color: 'FFFFFF', fill: '0070C0', fontFace: 'Arial', colspan: 1 } }
-  ]
-];
-
-// Utilization Overview Rows (Removed logo placeholder)
-const utilizationOverviewRows = Object.keys(programUtilizations).map(programName => {
-  return [
-    {
-      text: programName, // Program name text
-      options: { fontSize: 8, align: 'left', fontFace: 'Arial', fill: 'FFFFFF' }
-    },
-    { text: programUtilizations[programName].toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial' } },
-    { text: programServed[programName].toLocaleString(), options: { fontSize: 8, align: 'right', fontFace: 'Arial' } }
-  ];
-});
-
-// Add table to slide
-const utilizationTable = utilizationOverviewSlide.addTable([...utilizationOverviewHeader, ...utilizationOverviewRows], {
-  x: 0.5, y: 1.5, w: 9, fontSize: 10, border: { pt: 1, color: '000000' }
-});
 
 });
  
    // Save the PowerPoint file
-   pptx.writeFile({ fileName: 'Program_Brief_Report by PPA.pptx' });
+   pptx.writeFile({ fileName: 'Program Report.pptx' });
  };

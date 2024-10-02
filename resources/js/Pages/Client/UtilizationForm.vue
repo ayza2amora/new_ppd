@@ -23,13 +23,18 @@ const form = reactive({
 });
 
 const errorMessage = ref(''); // To store error message
+const showSuccessModal = ref(false);
 
 // Dropdown data for provinces and cities
 const provinces = ref([]);
 const cities = ref([]);
 
+// Fetch provinces and user's program on component mount
 onMounted(async () => {
   await fetchProvinces();
+  if (props.editingItem) {
+    await fetchCities(props.editingItem.province); // Fetch cities when editing
+  }
   await fetchUserProgram(); // Fetch user's program on mount
 });
 
@@ -59,35 +64,31 @@ const fetchProvinces = async () => {
   try {
     const response = await fetch('/address/provinces');
     provinces.value = await response.json();
-
-    // If editing, load cities for the selected province
-    if (form.province || props.editingItem?.province) {
-      const selectedProvince = provinces.value.find(province => province.col_province === form.province);
-      fetchCities(selectedProvince.psgc);
-    }
   } catch (error) {
     console.error('Error fetching provinces:', error);
   }
 };
 
-// Cache cities based on province to avoid redundant API calls
-const citiesCache = ref({});
-
-// Fetch cities based on the selected province's PSGC
 const fetchCities = async (provincePsgc) => {
   try {
     const response = await fetch(`/address/cities/${provincePsgc}`);
     const data = await response.json();
-
-    // Populate the cities array with the fetched data
-    cities.value = data;
-
-    return cities.value; // Return the cities so we can act on them after fetching
+    cities.value = data; // Assign cities to the reactive variable
+    return cities.value;
   } catch (error) {
     console.error('Error fetching cities:', error);
-    return []; // Return an empty array in case of error
+    return [];
   }
 };
+
+watch(() => form.province, async (newProvince) => {
+  if (newProvince) {
+    const selectedProvince = provinces.value.find(province => province.col_province === newProvince);
+    if (selectedProvince) {
+      await fetchCities(selectedProvince.psgc); // Fetch cities based on selected province
+    }
+  }
+});
 
 // Reset form fields
 const resetForm = () => {
@@ -100,15 +101,44 @@ const resetForm = () => {
 
 watch(() => props.editingItem, async (newItem) => {
   if (newItem) {
-    // Pre-fill province first
+    console.log('Editing Item:', newItem);
+
+    // Set the province
     form.province = newItem.province.col_province;
 
-    // Fetch cities based on the selected province
+    // Fetch cities based on the selected province PSGC
     const fetchedCities = await fetchCities(newItem.province.psgc);
+    console.log('Fetched Cities:', fetchedCities);
 
-    // Now set the city_municipality after fetching the cities
-    form.city_municipality = fetchedCities.find(city => city.psgc === newItem.city_municipality.psgc)?.col_citymuni || '';
-    
+    const newItemCityMunicipalityPSGC = String(newItem.city_municipality).trim();
+
+    // Handle special cases for Davao City's congressional districts
+    if (newItem.province.psgc === '112402000') { // PSGC code for Davao City
+      if (newItem.city_municipality === '1') {
+        form.city_municipality = '1st Congressional District';
+      } else if (newItem.city_municipality === '2') {
+        form.city_municipality = '2nd Congressional District';
+      } else if (newItem.city_municipality === '3') {
+        form.city_municipality = '3rd Congressional District';
+      } else {
+        form.city_municipality = '';
+        console.warn('No city matched for Davao City Congressional District PSGC:', newItem.city_municipality);
+      }
+    } else {
+      // For other provinces, match the city PSGC with the city_municipality in newItem
+      const matchedCity = fetchedCities.find(city => String(city.psgc).trim() === String(newItem.city_municipality).trim());
+
+      if (matchedCity) {
+        form.city_municipality = matchedCity.col_citymuni; // Match by PSGC
+        console.log('Matched City:', matchedCity);
+      } else {
+        console.warn(`No city matched for PSGC: ${newItem.city_municipality}. Available cities:`, fetchedCities);
+        form.city_municipality = ''; // Reset if no match found
+      }
+    }
+
+    console.log('Pre-filled City/Municipality:', form.city_municipality);
+
     // Pre-fill other fields
     form.program = props.programName;
     form.physical = newItem.physical;
@@ -118,20 +148,18 @@ watch(() => props.editingItem, async (newItem) => {
   }
 }, { immediate: true });
 
-// Watch for province changes to update cities list
-watch(() => form.province, async (newProvince) => {
-  const selectedProvince = provinces.value.find(province => province.col_province === newProvince);
-  if (selectedProvince) {
-    await fetchCities(selectedProvince.psgc);
-  }
-});
-
 // Submit form logic
 const submitForm = async () => {
   // Check if the program is restricted before allowing submission
   if (props.programStatus === 1) {
     errorMessage.value = "Program is restricted, submission not allowed.";  // Set the error message
     return;  // Block form submission
+  }
+
+   // Check for zero values
+   if (form.physical <= 0 || form.fund_utilized <= 0) {
+    errorMessage.value = "Physical and Fund Utilized cannot be zero or less.";
+    return;
   }
 
   form.program = props.programName;
@@ -181,11 +209,11 @@ const close = () => {
      <div class="mb-2">
           <label class="block text-sm font-bold mb-1">City/Municipality</label>
           <select v-model="form.city_municipality" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-  <option value="">Select a City/Municipality</option>
-  <option v-for="city in cities" :key="city.psgc" :value="city.col_citymuni">
-    {{ city.col_citymuni }}
-  </option>
-</select>
+            <option value="">Select a City/Municipality</option>
+            <option v-for="city in cities" :key="city.psgc" :value="city.col_citymuni">
+              {{ city.col_citymuni }}
+            </option>
+          </select>
         </div>
 
         <!-- Program Input (Read-only) -->

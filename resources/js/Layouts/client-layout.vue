@@ -46,7 +46,7 @@ const toggleSidebar = (state) => {
           :href="route('client-reports')"
           :class="[
             'flex items-center py-4 px-2',
-            { 'bg-blue-300': currentRoute === 'client-reports' },
+            { 'bg-blue-600': currentRoute === 'client-reports' },
             { 'hover:bg-blue-200': currentRoute !== 'client-reports' }
           ]"
         >
@@ -59,7 +59,7 @@ const toggleSidebar = (state) => {
           :href="route('client-logs')"
           :class="[
             'flex items-center py-4 px-2',
-            { 'bg-blue-300': currentRoute === 'client-logs' },
+            { 'bg-blue-600': currentRoute === 'client-logs' },
             { 'hover:bg-blue-200': currentRoute !== 'client-logs' }
           ]"
         >

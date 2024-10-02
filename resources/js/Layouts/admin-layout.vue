@@ -23,6 +23,14 @@ const toggleSidebar = (state) => {
   isExpanded.value = state;
   emit('sidebar-expanded', state);
 };
+
+// This will prevent the back button from navigating to the previous page
+if (window.history && window.history.pushState) {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, null, window.location.href);
+        };
+    }
 </script>
 
 <template>
@@ -54,7 +62,7 @@ const toggleSidebar = (state) => {
         :href="route(item.route)"
         :class="[
           'flex items-center py-4 px-4',
-          { 'bg-blue-300': currentRoute === item.route },
+          { 'bg-blue-600': currentRoute === item.route },
           { 'hover:bg-blue-200': currentRoute !== item.route }
         ]"
       >
